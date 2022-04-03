@@ -1,0 +1,613 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch100/03_use_tokio_time.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:55 GMT -->
+<head>
+
+<meta charset="UTF-8">
+<title>使用tokio Timer - Rust入門祕籍</title>
+
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta name="description" content="Rust入門">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="../favicon.svg">
+<link rel="shortcut icon" href="../favicon.png">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/general.css">
+<link rel="stylesheet" href="../css/chrome.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+
+<link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+
+<link rel="stylesheet" href="../highlight.css">
+<link rel="stylesheet" href="../tomorrow-night.css">
+<link rel="stylesheet" href="../ayu-highlight.css">
+
+<link rel="stylesheet" href="../mytheme/fonts/cascadia-font.css">
+<link rel="stylesheet" href="../mytheme/style.css">
+</head>
+<body>
+
+<script type="text/javascript">
+            var path_to_root = "../index.html";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+<script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+<script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+<script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+<nav id="sidebar" class="sidebar" aria-label="Table of contents">
+<div class="sidebar-scrollbox">
+<ol class="chapter"><li class="chapter-item expanded affix "><a href="../about.html">說明</a></li><li class="chapter-item expanded "><a href="../ch1/00.html"><strong aria-hidden="true">1.</strong> Rust入門第一課</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch1/01_expression.html"><strong aria-hidden="true">1.1.</strong> Rust是基於表達式的語言</a></li></ol></li><li class="chapter-item expanded "><a href="../ch2/00.html"><strong aria-hidden="true">2.</strong> 變量聲明和函數定義</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch2/01_variable.html"><strong aria-hidden="true">2.1.</strong> 理解Rust中的變量賦值</a></li><li class="chapter-item expanded "><a href="../ch2/02_function.html"><strong aria-hidden="true">2.2.</strong> 定義函數</a></li></ol></li><li class="chapter-item expanded "><a href="../ch3/00.html"><strong aria-hidden="true">3.</strong> Rust原始數據類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch3/01_number.html"><strong aria-hidden="true">3.1.</strong> 數值類型</a></li><li class="chapter-item expanded "><a href="../ch3/02_bool.html"><strong aria-hidden="true">3.2.</strong> 布爾類型</a></li><li class="chapter-item expanded "><a href="../ch3/03_char.html"><strong aria-hidden="true">3.3.</strong> char類型</a></li><li class="chapter-item expanded "><a href="../ch3/04_str_string.html"><strong aria-hidden="true">3.4.</strong> 字符串：str和String</a></li><li class="chapter-item expanded "><a href="../ch3/05_tuple_unit.html"><strong aria-hidden="true">3.5.</strong> tuple類型</a></li><li class="chapter-item expanded "><a href="../ch3/06_array.html"><strong aria-hidden="true">3.6.</strong> Array類型</a></li><li class="chapter-item expanded "><a href="../ch3/07_reference_type.html"><strong aria-hidden="true">3.7.</strong> Rust中的引用類型</a></li><li class="chapter-item expanded "><a href="../ch3/08_slice.html"><strong aria-hidden="true">3.8.</strong> Slice類型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch4/00.html"><strong aria-hidden="true">4.</strong> Rust操作符和流程控制語句</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch4/01_operators.html"><strong aria-hidden="true">4.1.</strong> Rust操作符</a></li><li class="chapter-item expanded "><a href="../ch4/02_range_expression.html"><strong aria-hidden="true">4.2.</strong> 範圍表達式</a></li><li class="chapter-item expanded "><a href="../ch4/03_flow_control.html"><strong aria-hidden="true">4.3.</strong> 流程控制結構</a></li></ol></li><li class="chapter-item expanded "><a href="../ch5/00.html"><strong aria-hidden="true">5.</strong> 理解Rust內存管理</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch5/01_heap_stack.html"><strong aria-hidden="true">5.1.</strong> 堆空間和棧空間</a></li><li class="chapter-item expanded "><a href="../ch5/02_rust_mem.html"><strong aria-hidden="true">5.2.</strong> Rust如何使用堆和棧</a></li><li class="chapter-item expanded "><a href="../ch5/03_rust_place_value.html"><strong aria-hidden="true">5.3.</strong> 通過位置和值理解內存模型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch6/00.html"><strong aria-hidden="true">6.</strong> 理解Rust的所有權和借用規則</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch6/01_scope.html"><strong aria-hidden="true">6.1.</strong> 理解Rust的變量作用域</a></li><li class="chapter-item expanded "><a href="../ch6/02_move_copy.html"><strong aria-hidden="true">6.2.</strong> Rust所有權規則概述</a></li><li class="chapter-item expanded "><a href="../ch6/03_ref_ownership_borrow.html"><strong aria-hidden="true">6.3.</strong> 引用和所有權借用</a></li><li class="chapter-item expanded "><a href="../ch6/04_understand_mutable_ref.html"><strong aria-hidden="true">6.4.</strong> 理解可變引用的排他性</a></li><li class="chapter-item expanded "><a href="../ch6/05_re_understand_move.html"><strong aria-hidden="true">6.5.</strong> 再次理解Move</a></li><li class="chapter-item expanded "><a href="../ch6/06_ref_copy_clone.html"><strong aria-hidden="true">6.6.</strong> 引用類型的Copy和Clone</a></li></ol></li><li class="chapter-item expanded "><a href="../ch7/00.html"><strong aria-hidden="true">7.</strong> Vec類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch7/01_vec_basic.html"><strong aria-hidden="true">7.1.</strong> Vec的基本使用</a></li><li class="chapter-item expanded "><a href="../ch7/02_vec_capacity_reallocation.html"><strong aria-hidden="true">7.2.</strong> Vec的內存佈局</a></li><li class="chapter-item expanded "><a href="../ch7/03_vec_method.html"><strong aria-hidden="true">7.3.</strong> vec的常用方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch8/00.html"><strong aria-hidden="true">8.</strong> Struct類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch8/01_struct_basic.html"><strong aria-hidden="true">8.1.</strong> Struct的基本使用</a></li><li class="chapter-item expanded "><a href="../ch8/02_output_struct.html"><strong aria-hidden="true">8.2.</strong> 調試輸出Struct</a></li><li class="chapter-item expanded "><a href="../ch8/03_struct_methods.html"><strong aria-hidden="true">8.3.</strong> 定義Struct的方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch9/00.html"><strong aria-hidden="true">9.</strong> Enum類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch9/01_enum_basis.html"><strong aria-hidden="true">9.1.</strong> Enum的基本使用</a></li><li class="chapter-item expanded "><a href="../ch9/02_more_about_enum.html"><strong aria-hidden="true">9.2.</strong> 定義Enum的完整語法</a></li><li class="chapter-item expanded "><a href="../ch9/03_enum_methods.html"><strong aria-hidden="true">9.3.</strong> 為枚舉類型定義方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch10/00.html"><strong aria-hidden="true">10.</strong> 模式匹配</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch10/01_pattern_match_basis.html"><strong aria-hidden="true">10.1.</strong> 模式匹配的基本使用</a></li><li class="chapter-item expanded "><a href="../ch10/02_pattern_details.html"><strong aria-hidden="true">10.2.</strong> 模式的完整語法</a></li><li class="chapter-item expanded "><a href="../ch10/03_deconstruction.html"><strong aria-hidden="true">10.3.</strong> 模式解構賦值</a></li></ol></li><li class="chapter-item expanded "><a href="../ch11/00.html"><strong aria-hidden="true">11.</strong> Trait和Trait Object</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch11/01_trait_basis.html"><strong aria-hidden="true">11.1.</strong> Trait的基本用法</a></li><li class="chapter-item expanded "><a href="../ch11/02_more_about_trait.html"><strong aria-hidden="true">11.2.</strong> 再多理解一點Trait</a></li><li class="chapter-item expanded "><a href="../ch11/03_trait_inherite.html"><strong aria-hidden="true">11.3.</strong> Trait繼承</a></li><li class="chapter-item expanded "><a href="../ch11/04_trait_object.html"><strong aria-hidden="true">11.4.</strong> Trait Object</a></li></ol></li><li class="chapter-item expanded "><a href="../ch12/00.html"><strong aria-hidden="true">12.</strong> 泛型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch12/01_generic_basis.html"><strong aria-hidden="true">12.1.</strong> 泛型的基本使用</a></li><li class="chapter-item expanded "><a href="../ch12/02_where_generic.html"><strong aria-hidden="true">12.2.</strong> 使用泛型的位置</a></li><li class="chapter-item expanded "><a href="../ch12/03_trait_obj_generic.html"><strong aria-hidden="true">12.3.</strong> Trait對象和泛型</a></li></ol></li><li class="chapter-item expanded "><a href="00.html"><strong aria-hidden="true">13.</strong> Rust異步編程和tokio框架</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01_understand_tokio_runtime.html"><strong aria-hidden="true">13.1.</strong> 理解tokio的核心(1): runtime</a></li><li class="chapter-item expanded "><a href="02_understand_tokio_task.html"><strong aria-hidden="true">13.2.</strong> 理解tokio的核心(2): task</a></li><li class="chapter-item expanded "><a href="03_use_tokio_time.html" class="active"><strong aria-hidden="true">13.3.</strong> 使用tokio Timer</a></li><li class="chapter-item expanded "><a href="04_task_communication_and_sync.html"><strong aria-hidden="true">13.4.</strong> tokio task的通信和同步(1): 簡介</a></li><li class="chapter-item expanded "><a href="05_task_communication.html"><strong aria-hidden="true">13.5.</strong> tokio task的通信和同步(2): 通信</a></li><li class="chapter-item expanded "><a href="06_task_state_sync.html"><strong aria-hidden="true">13.6.</strong> tokio task的通信和同步(3): 同步</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.7.</strong> 異步IO/fs/Stream/Frame沒寫完整，完整後再發</div></li></ol></li><li class="chapter-item expanded "><a href="../ch101/tracing.html"><strong aria-hidden="true">14.</strong> Rust日誌記錄</a></li></ol>
+</div>
+<div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+</nav>
+<div id="page-wrapper" class="page-wrapper">
+<div class="page">
+<div id="menu-bar-hover-placeholder"></div>
+<div id="menu-bar" class="menu-bar sticky bordered">
+<div class="left-buttons">
+<button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+<i class="fa fa-bars"></i>
+</button>
+<button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+<i class="fa fa-paint-brush"></i>
+</button>
+<ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+<li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+<li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+<li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+<li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+<li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+</ul>
+<button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+<i class="fa fa-search"></i>
+</button>
+</div>
+<h1 class="menu-title">Rust入門祕籍</h1>
+<h1 class="menu-title menu-blog">
+<a href="https://www.junmajinlong.com/">博客</a>
+</h1>
+<div class="right-buttons">
+<a href="../print.html" title="Print this book" aria-label="Print this book">
+<i id="print-button" class="fa fa-print"></i>
+</a>
+</div>
+</div>
+<div id="search-wrapper" class="hidden">
+<form id="searchbar-outer" class="searchbar-outer">
+<input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+</form>
+<div id="searchresults-outer" class="searchresults-outer hidden">
+<div id="searchresults-header" class="searchresults-header"></div>
+<ul id="searchresults">
+</ul>
+</div>
+</div>
+
+<script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+<div id="content" class="content">
+<main>
+<div class="sidetoc"><nav class="pagetoc"></nav></div>
+<h2 id="使用tokio-timer"><a class="header" href="#使用tokio-timer">使用tokio Timer</a></h2>
+<p>本篇介紹tokio的計時器功能：Timer。</p>
+<p>每一個異步框架都應該具備計時器功能，tokio的計時器功能在開啟了<code>time</code>特性後可用。</p>
+<pre><code class="language-toml">tokio = {version = &quot;1.13&quot;, features = [&quot;rt&quot;, &quot;rt-multi-thread&quot;, &quot;time&quot;]}
+</code></pre>
+<p>tokio的time模塊包含幾個功能：</p>
+<ul>
+<li><code>Duration</code>類型：是對<code>std::time::Duration</code>的重新導出，兩者等價。它用於描述持續時長，例如睡眠3秒的3秒是一個時長，每隔3秒的3秒也是一個時長</li>
+<li><code>Instant</code>類型：從程序運行開始就單調遞增的時間點，僅結合Duration一起使用。例如，此刻是處在某個時間點A，下一次(例如某個時長過後)，處在另一個時間點B，時間點B一定不會早於時間點A，即便修改了操作系統的時鐘或硬件時鐘，它也不會時光倒流的現象</li>
+<li><code>Sleep</code>類型：是一個Future，通過調用<code>sleep()</code>或<code>sleep_until()</code>返回，該Future本身不做任何事，它只在到達某個時間點(Instant)時完成</li>
+<li><code>Interval</code>類型：是一個流式的間隔計時器，通過調用<code>interval()</code>或<code>interval_at()</code>返回。Interval使用<code>Duration</code>來初始化，表示每隔一段時間(即指定的Duration時長)後就產生一個值</li>
+<li><code>Timeout</code>類型：封裝異步任務，併為異步任務設置超時時長，通過調用<code>timeout()</code>或<code>timeout_at()</code>返回。如果異步任務在指定時長內仍未完成，則異步任務被強制取消並返回Error</li>
+</ul>
+<h3 id="時長-tokiotimeduration"><a class="header" href="#時長-tokiotimeduration">時長: tokio::time::Duration</a></h3>
+<p><code>tokio::time::Duration</code>是對<code>std::time::Duration</code>的Re-exports，它兩完全等價，因此可在tokio上下文中使用任何一種Duration。</p>
+<p>Duration類型描述了一種時長，該結構包含兩部分：秒和納秒。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Duration {
+    secs: u64,
+    nanos: u32,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>可使用<code>Duration::new(Sec, Nano_sec)</code>來構建Duration。例如，<code>Duration::new(5, 30)</code>構建了一個5秒30納秒的時長，即總共<code>5_000_000_030</code>納秒。</p>
+<p>如果Nano_sec部分超出了納秒範圍(1秒等於10億納秒)，將進位到秒單位上，例如第二個參數指定為500億納秒，那麼會向秒部分加50秒。</p>
+<p>注意，構建時長時，這兩部分的值可能會超出範圍，例如計算後的秒部分的值超出了u64的範圍，或者計算得到了負數。對此，Duration提供了幾種不同的處理方式。</p>
+<p>特殊地，如果兩個參數都指定為0，那麼表示時長為0，可用<code>is_zero()</code>來檢測某個Duration是否是0時長。0時長可用於上下文切換(yield)，例如sleep睡眠0秒，表示不用睡眠，但會交出CPU使得發生上下文切換。</p>
+<p>還可以使用如下幾種簡便的方式構建各種單位的時長：</p>
+<ul>
+<li>Duration::from_secs(3)：3秒時長</li>
+<li>Duration::from_millis(300)：300毫秒時長</li>
+<li>Duration::from_micros(300)：300微秒時長</li>
+<li>Duration::from_nanos(300)：300納秒時長</li>
+<li>Duration::from_secs_f32(2.3)：2.3秒時長</li>
+<li>Duration::from_secs_f64(2.3)：2.3秒時長</li>
+</ul>
+<p>對於構建好的Duration實例<code>dur = Duration::from_secs_f32(2.3)</code>，可以使用如下幾種方法方便地提取、轉換它的秒、毫秒、微秒、納秒。</p>
+<ul>
+<li>dur.as_secs()：轉換為秒的表示方式，2</li>
+<li>dur.as_millis(): 轉換為毫秒錶示方式，2300</li>
+<li>dur.as_micros(): 轉換為微秒錶示方式，2_300_000</li>
+<li>dur.as_nanos(): 轉換為納秒錶示方式，2_300_000_000</li>
+<li>dur.as_secs_f32(): 小數秒錶示方式，2.3</li>
+<li>dur.as_secs_f64(): 小數秒錶示方式，2.3</li>
+<li>dur.subsec_millis(): 小數部分轉換為毫秒精度的表示方式，300</li>
+<li>dur.subsec_micros(): 小數部分轉換為微秒精度的表示方式，300_000</li>
+<li>dur.subsec_nanos(): 小數部分轉換為納秒精度的表示方式，300_000_000</li>
+</ul>
+<p>Duration實例可以直接進行大小比較以及加減乘除運算：</p>
+<ul>
+<li>checked_add(): 時長的加法運算，超出Duration範圍時返回None</li>
+<li>checked_sub(): 時長的減法運算，超出Duration範圍時返回None</li>
+<li>checked_mul(): 時長的乘法運算，超出Duration範圍時返回None</li>
+<li>checked_div(): 時長的除法運算，超出Duration範圍時(即分母為0)返回None</li>
+<li>saturating_add()：飽和式的加法運算，超出範圍時返回Duration支持的最大時長</li>
+<li>saturating_mul()：飽和式的乘法運算，超出範圍時返回Duration支持的最大時長</li>
+<li>saturating_sub()：飽和式的減法運算，超出範圍時返回0時長</li>
+<li>mul_f32()：時長乘以小數，得到的結果如果超出範圍或無效，則panic</li>
+<li>mul_f64()：時長乘以小數，得到的結果如果超出範圍或無效，則panic</li>
+<li>div_f32()：時長除以小數，得到的結果如果超出範圍或無效，則panic</li>
+<li>div_f64()：時長除以小數，得到的結果如果超出範圍或無效，則panic</li>
+</ul>
+<h3 id="時間點-tokiotimeinstant"><a class="header" href="#時間點-tokiotimeinstant">時間點: tokio::time::Instant</a></h3>
+<p>Instant用於表示時間點，主要用於兩個時間點的比較和相關運算。</p>
+<p><code>tokio::time::Instant</code>是對<code>std::time::Instant</code>的封裝，添加了一些對齊功能，使其能夠適用於tokio runtime。</p>
+<p>Instant是嚴格單調遞增的，絕不會出現時光倒流的現象，即之後的時間點一定晚於之前創建的時間點。但是，tokio time提供了<code>pause()</code>函數可暫停時間點，還提供了<code>advance()</code>函數用於向後跳轉到某個時間點。</p>
+<p><code>tokio::time::Instant::now()</code>用於創建代表此時此刻的時間點。Instant可以直接進行大小比較，還能執行<code>+</code>、<code>-</code>操作。</p>
+<pre><pre class="playground"><code class="language-rust">use tokio;
+use tokio::time::Instant;
+use tokio::time::Duration;
+
+#[tokio::main]
+async fn main() {
+    // 創建代表此時此刻的時間點
+    let now = Instant::now();
+    
+    // Instant 加一個Duration，得到另一個Instant
+    let next_3_sec = now + Duration::from_secs(3);
+    // Instant之間的大小比較
+    println!(&quot;{}&quot;, now &lt; next_3_sec);  // true
+    
+    // Instant減Duration，得到另一個Instant
+    let new_instant = next_3_sec - Duration::from_secs(2);
+    
+    // Instant減另一個Instant，得到Duration
+    // 注意，Duration有它的有效範圍，因此必須是大的Instant減小的Instant，反之將panic
+    let duration = next_3_sec - new_instant;
+}
+</code></pre></pre>
+<p>此外<code>tokio::time::Instant</code>還有以下幾個方法：</p>
+<ul>
+<li>from_std(): 將<code>std::time::Instant</code>轉換為<code>tokio::time::Instant</code></li>
+<li>into_std(): 將<code>tokio::time::Instant</code>轉換為<code>std::time::Instant</code></li>
+<li>elapsed(): 指定的時間點實例，距離此時此刻的時間點，已經過去了多久(返回Duration)</li>
+<li>duration_since(): 兩個Instant實例之間相差的時長，要求<code>B.duration_since(A)</code>中的B必須晚於A，否則panic</li>
+<li>checked_duration_since(): 兩個時間點之間的時長差，如果計算返回的Duration無效，則返回None</li>
+<li>saturating_duration_since(): 兩個時間點之間的時長差，如果計算返回的Duration無效，則返回0時長的Duration實例</li>
+<li>checked_add(): 為時間點加上某個時長，如果加上時長後是無效的Instant，則返回None</li>
+<li>checked_sub(): 為時間點減去某個時長，如果減去時長後是無效的Instant，則返回None</li>
+</ul>
+<p>tokio頂層也提供了一個<code>tokio::resume()</code>方法，功能類似於<code>tokio::time::from_std()</code>，都是將<code>std::time::Instant::now()</code>保存為<code>tokio::time::Instant</code>。不同的是，後者用於創建tokio time Instant時間點，而<code>resume()</code>是讓tokio的Instant的計時系統與系統的計時系統進行一次同步更新。</p>
+<h3 id="睡眠-tokiotimesleep"><a class="header" href="#睡眠-tokiotimesleep">睡眠: tokio::time::Sleep</a></h3>
+<p><code>tokio::time::sleep()</code>和<code>tokio::time::sleep_until()</code>提供tokio版本的睡眠任務：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::{self, runtime::Runtime, time};
+
+fn main(){
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        // 睡眠2秒
+        time::sleep(time::Duration::from_secs(2)).await;
+
+        // 一直睡眠，睡到2秒後醒來
+        time::sleep_until(time::Instant::now() + time::Duration::from_secs(2)).await;
+    });
+}
+</code></pre></pre>
+<p>注意，<code>std::thread::sleep()</code>會阻塞當前線程，而tokio的睡眠不會阻塞當前線程，實際上tokio的睡眠在進入睡眠後不做任何事，僅僅只是立即放棄CPU，並進入任務輪詢隊列，等待睡眠時間終點到了之後被Reactor喚醒，然後進入就緒隊列等待被調度。</p>
+<p>可以簡單理解異步睡眠：調用睡眠後，記錄睡眠的終點時間點，之後在輪詢到該任務時，比較當前時間點是否已經超過睡眠終點，如果超過了，則喚醒該睡眠任務，如果未超過終點，則不管。</p>
+<p>注意，tokio的sleep的睡眠精度是毫秒，因此無法保證也不應睡眠更低精度的時間。例如不要睡眠100微秒或100納秒，這時無法保證睡眠的時長。</p>
+<p>下面是一個睡眠10微秒的例子，多次執行，會發現基本上都要1毫秒多，去掉執行指令的時間，實際的睡眠時長大概是1毫秒。另外，將睡眠10微秒改成睡眠100微秒或1納秒，結果也是接近的。</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::{self, runtime::Runtime, time};
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let start = time::Instant::now();
+        // time::sleep(time::Duration::from_nanos(100)).await;
+        // time::sleep(time::Duration::from_micros(100)).await;
+        time::sleep(time::Duration::from_micros(10)).await;
+        println!(&quot;sleep {}&quot;, time::Instant::now().duration_since(start).as_nanos());
+    });
+}
+</code></pre></pre>
+<p>執行的多次，輸出結果：</p>
+<pre><code>sleep 1174300
+sleep 1202900
+sleep 1161200
+sleep 1393200
+sleep 1306400
+sleep 1285300
+</code></pre>
+<p><code>sleep()</code>或<code>sleep_until()</code>都返回<code>time::Sleep</code>類型，它有3個方法可調用：</p>
+<ul>
+<li>deadline(): 返回Instant，表示該睡眠任務的睡眠終點</li>
+<li>is_elapsed(): 可判斷此時此刻是否已經超過了該sleep任務的睡眠終點</li>
+<li>reset()：可用於重置睡眠任務。如果睡眠任務未完成，則直接修改睡眠終點，如果睡眠任務已經完成，則再次創建睡眠任務，等待新的終點</li>
+</ul>
+<p>需要注意的是，<code>reset()</code>要求修改睡眠終點，因此Sleep實例需要是mut的，但這樣會消費掉Sleep實例，更友好的方式是使用<code>tokio::pin!(sleep)</code>將sleep給pin在當前棧中，這樣就可以調用<code>as_mut()</code>方法獲取它的可修改版本。</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{self, runtime::Runtime, time};
+
+#[allow(dead_code)]
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        println!(&quot;start: {}&quot;, now());
+        let slp = time::sleep(time::Duration::from_secs(1));
+        tokio::pin!(slp);
+
+        slp.as_mut().reset(time::Instant::now() + time::Duration::from_secs(2));
+
+        slp.await;
+        println!(&quot;end: {}&quot;, now());
+    });
+}
+</code></pre></pre>
+<p>輸出：</p>
+<pre><code>start: 2021-11-02 21:57:42
+end: 2021-11-02 21:57:44
+</code></pre>
+<p>重置已完成的睡眠實例：</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{self, runtime::Runtime, time};
+
+#[allow(dead_code)]
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        println!(&quot;start: {}&quot;, now());
+        let slp = time::sleep(time::Duration::from_secs(1));
+        tokio::pin!(slp);
+        
+        //注意調用slp.as_mut().await，而不是slp.await，後者會move消費掉slp
+        slp.as_mut().await;
+        println!(&quot;end 1: {}&quot;, now());
+
+        slp.as_mut().reset(time::Instant::now() + time::Duration::from_secs(2));
+
+        slp.await;
+        println!(&quot;end 2: {}&quot;, now());
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>start: 2021-11-02 21:59:25
+end 1: 2021-11-02 21:59:26
+end 2: 2021-11-02 21:59:28
+</code></pre>
+<h3 id="任務超時-tokiotimetimeout"><a class="header" href="#任務超時-tokiotimetimeout">任務超時: tokio::time::Timeout</a></h3>
+<p><code>tokio::time::timeout()</code>或<code>tokio::time::timeout_at()</code>可設置一個異步任務的完成超時時間，前者接收一個Duration和一個Future作為參數，後者接收一個Instant和一個Future作為參數。這兩個函數封裝異步任務之後，返回<code>time::Timeout</code>，它也是一個Future。</p>
+<p>如果在指定的超時時間內該異步任務已完成，則返回該異步任務的返回值，如果未完成，則異步任務被撤銷並返回Err。</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{self, runtime::Runtime, time};
+
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let res = time::timeout(time::Duration::from_secs(5), async {
+            println!(&quot;sleeping: {}&quot;, now());
+            time::sleep(time::Duration::from_secs(6)).await;
+            33
+        });
+
+        match res.await {
+            Err(_) =&gt; println!(&quot;task timeout: {}&quot;, now()),
+            Ok(data) =&gt; println!(&quot;get the res '{}': {}&quot;, data, now()),
+        };
+    });
+}
+</code></pre></pre>
+<p>得到結果：</p>
+<pre><code>sleeping: 2021-11-03 17:12:33
+task timeout: 2021-11-03 17:12:38
+</code></pre>
+<p>如果將睡眠6秒改為睡眠4秒，那麼將得到結果：</p>
+<pre><code>sleeping: 2021-11-03 17:13:11
+get the res '33': 2021-11-03 17:13:15
+</code></pre>
+<p>得到<code>time::Timeout</code>實例res後，可以通過<code>res.get_ref()</code>或者<code>res.get_mut()</code>獲得Timeout所封裝的Future的可變和不可變引用，使用<code>res.into_inner()</code>獲得所封裝的Future，這會消費掉該Future。</p>
+<p>如果要取消Timeout的計時等待，直接刪除掉Timeout實例即可。</p>
+<h3 id="間隔任務-tokiotimeinterval"><a class="header" href="#間隔任務-tokiotimeinterval">間隔任務: tokio::time::Interval</a></h3>
+<p><code>tokio::time::interval()</code>和<code>tokio::time::interval_at()</code>用於設置間隔性的任務。</p>
+<ul>
+<li>interval_at(): 接收一個Instant參數和一個Duration參數，Instant參數表示間隔計時器的開始計時點，Duration參數表示間隔的時長</li>
+<li>interval(): 接收一個Duration參數，它在第一次被調用的時候立即開始計時</li>
+</ul>
+<p>注意，這兩個函數只是定義了間隔計時器的起始計時點和間隔的時長，要真正開始讓它開始計時，還需要調用它的<code>tick()</code>方法生成一個Future任務，並調用await來執行並等待該任務的完成。</p>
+<p>例如，5秒後開始每隔1秒執行一次輸出操作：</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{self, runtime::Runtime, time::{self, Duration, Instant}};
+
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        println!(&quot;before: {}&quot;, now());
+
+        // 計時器的起始計時點：此時此刻之後的5秒後
+        let start = Instant::now() + Duration::from_secs(5);
+        let interval = Duration::from_secs(1);
+        let mut intv = time::interval_at(start, interval);
+
+        // 該計時任務&quot;阻塞&quot;，直到5秒後被喚醒
+        intv.tick().await;
+        println!(&quot;task 1: {}&quot;, now());
+
+        // 該計時任務&quot;阻塞&quot;，直到1秒後被喚醒
+        intv.tick().await;
+        println!(&quot;task 2: {}&quot;, now());
+
+        // 該計時任務&quot;阻塞&quot;，直到1秒後被喚醒
+        intv.tick().await;
+        println!(&quot;task 3: {}&quot;, now());
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>before: 2021-11-03 18:52:14
+task 1: 2021-11-03 18:52:19
+task 2: 2021-11-03 18:52:20
+task 3: 2021-11-03 18:52:21
+</code></pre>
+<p>上面定義的計時器，有幾點需要說明清楚：</p>
+<ol>
+<li>interval_at()第一個參數定義的是計時器的開始時間，這樣描述不準確，它表述的是最早都要等到這個時間點才開始計時。例如，定義計時器5秒之後開始計時，但在第一次tick()之前，先睡眠了10秒，那麼該計時器將在10秒後才開始，但如果第一次tick之前只睡眠了3秒，那麼還需再等待2秒該tick計時任務才會完成。</li>
+<li>定義計時器時，要將其句柄(即計時器變量)聲明為mut，因為每次tick時，都需要修改計時器內部的下一次計時起點。</li>
+<li>不像其它語言中的間隔計時器，tokio的間隔計時器需要手動調用tick()方法來生成臨時的異步任務。</li>
+<li>刪除計時器句柄可取消間隔計時器。</li>
+</ol>
+<p>再看下面的示例，定義5秒後開始的計時器，但在第一次開始計時前，先睡眠10秒。</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{
+    self,
+    runtime::Runtime,
+    time::{self, Duration, Instant},
+};
+
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        println!(&quot;before: {}&quot;, now());
+
+        let start = Instant::now() + Duration::from_secs(5);
+        let interval = Duration::from_secs(1);
+        let mut intv = time::interval_at(start, interval);
+
+        time::sleep(Duration::from_secs(10)).await;
+        intv.tick().await;
+        println!(&quot;task 1: {}&quot;, now());
+        intv.tick().await;
+        println!(&quot;task 2: {}&quot;, now());
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>before: 2021-11-03 19:00:10
+task 1: 2021-11-03 19:00:20
+task 2: 2021-11-03 19:00:20
+</code></pre>
+<p>注意輸出結果中的task 1和task 2的時間點是相同的，說明第一次tick之後，並沒有等待1秒之後再執行緊跟著的tick，而是立即執行之。</p>
+<p>簡單解釋一下上面示例中的計時器內部的工作流程，假設定義計時器的時間點是19:00:10：</p>
+<ul>
+<li>定義5秒後開始的計時器intv，該計時器內部有一個字段記錄著下一次開始tick的時間點，其值為19:00:15</li>
+<li>睡眠10秒後，時間點到了19:00:20，此時第一次執行<code>intv.tick()</code>，它將生成一個異步任務，執行器執行時發現此時此刻的時間點已經超過該計時器內部記錄的值，於是該異步任務立即完成並進入就緒隊列等待調度，同時修改計時器內部的值為19:00:16</li>
+<li>下一次執行tick的時候，此時此刻仍然是19:00:20，已經超過了該計時器內部的19:00:16，因此計時任務立即完成</li>
+</ul>
+<p>這是tokio Interval在遇到計時延遲時的默認計時策略，叫做<code>Burst</code>。tokio支持三種延遲後的計時策略。可使用<code>set_missed_tick_behavior(MissedTickBehavior)</code>來修改計時策略。</p>
+<p><strong>1.Burst策略，衝刺型的計時策略，當出現延遲後，將盡量快地完成接下來的tick，直到某個tick趕上它正常的計時時間點</strong>。</p>
+<p>例如，5秒後開始的每隔1秒的計時器，第一次開始tick前睡眠了10秒，那麼10秒後將立即進行如下幾次tick，或者說瞬間完成如下幾次tick：</p>
+<ul>
+<li>第一次tick，它本該在第五秒的時候被執行</li>
+<li>第二次tick，它本該在第六秒的時候被執行</li>
+<li>第三次tick，它本該在第七秒的時候被執行</li>
+<li>第四次tick，它本該在第八秒的時候被執行</li>
+<li>第五次tick，它本該在第九秒的時候被執行</li>
+<li>第六次tick，它本該在第十秒的時候被執行</li>
+</ul>
+<p>而第七次tick的時間點，將回歸正常，即在第十一秒的時候開始被執行。</p>
+<p><strong>2.Delay策略，延遲性的計時策略，當出現延遲後，仍然按部就班地每隔指定的時長計時</strong>。在內部，這種策略是在每次執行tick之後，都修改下一次計時起點為<code>Instant::now() + Duration</code>。因此，這種策略下的任何相鄰兩次的tick，其中間間隔的時長都至少達到Duration。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{self, runtime::Runtime};
+use tokio::time::{self, Duration, Instant, MissedTickBehavior};
+
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        println!(&quot;before: {}&quot;, now());
+
+        let mut intv = time::interval_at(
+            Instant::now() + Duration::from_secs(5),
+            Duration::from_secs(2),
+        );
+        intv.set_missed_tick_behavior(MissedTickBehavior::Delay);
+
+        time::sleep(Duration::from_secs(10)).await;
+
+        println!(&quot;start: {}&quot;, now());
+        intv.tick().await;
+        println!(&quot;tick 1: {}&quot;, now());
+        intv.tick().await;
+        println!(&quot;tick 2: {}&quot;, now());
+        intv.tick().await;
+        println!(&quot;tick 3: {}&quot;, now());
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>before: 2021-11-03 19:31:02
+start: 2021-11-03 19:31:12
+tick 1: 2021-11-03 19:31:12
+tick 2: 2021-11-03 19:31:14
+tick 3: 2021-11-03 19:31:16
+</code></pre>
+<p><strong>3.Skip策略，忽略型的計時策略，當出現延遲後，仍然所有已經被延遲的計時任務</strong>。這種策略總是以定義計時器時的起點為基準，類似等差數量，每一次執行tick的時間點，一定符合<code>Start + N * Duration</code>。</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{self, runtime::Runtime};
+use tokio::time::{self, Duration, Instant, MissedTickBehavior};
+
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        println!(&quot;before: {}&quot;, now());
+
+        let mut intv = time::interval_at(
+            Instant::now() + Duration::from_secs(5),
+            Duration::from_secs(2),
+        );
+        intv.set_missed_tick_behavior(MissedTickBehavior::Skip);
+
+        time::sleep(Duration::from_secs(10)).await;
+
+        println!(&quot;start: {}&quot;, now());
+        intv.tick().await;
+        println!(&quot;tick 1: {}&quot;, now());
+        intv.tick().await;
+        println!(&quot;tick 2: {}&quot;, now());
+        intv.tick().await;
+        println!(&quot;tick 3: {}&quot;, now());
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>before: 2021-11-03 19:34:53
+start: 2021-11-03 19:35:03
+tick 1: 2021-11-03 19:35:03
+tick 2: 2021-11-03 19:35:04
+tick 3: 2021-11-03 19:35:06
+</code></pre>
+<p>注意上面的輸出結果中，第一次tick和第二次tick只相差1秒而不是相差2秒。</p>
+<p>上面通過<code>interval_at()</code>解釋清楚了<code>tokio::time::Interval</code>的三種計時策略。但在程序中，更大的可能是使用<code>interval()</code>來定義間隔計時器，它等價於<code>interval_at(Instant::now() + Duration)</code>，表示計時起點從現在開始的計時器。</p>
+<p>此外，可以使用<code>period()</code>方法獲取計時器的間隔時長，使用<code>missed_tick_behavior()</code>獲取當前的計時策略。</p>
+</main>
+<nav class="nav-wrapper" aria-label="Page navigation">
+
+<a rel="prev" href="02_understand_tokio_task.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="04_task_communication_and_sync.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+<div style="clear: both"></div>
+</nav>
+</div>
+</div>
+<nav class="nav-wide-wrapper" aria-label="Page navigation">
+<a rel="prev" href="02_understand_tokio_task.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="04_task_communication_and_sync.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+</nav>
+</div>
+
+<script type="text/javascript">
+            var socket = new WebSocket("ws://0.0.0.0:8880/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+<script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+<script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+<script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+<script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" src="../mytheme/sidebar.js"></script>
+</body>
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch100/03_use_tokio_time.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:55 GMT -->
+</html>

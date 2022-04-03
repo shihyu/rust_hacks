@@ -1,0 +1,441 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch10/03_deconstruction.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:53 GMT -->
+<head>
+
+<meta charset="UTF-8">
+<title>模式解構賦值 - Rust入門祕籍</title>
+
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta name="description" content="Rust入門">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="../favicon.svg">
+<link rel="shortcut icon" href="../favicon.png">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/general.css">
+<link rel="stylesheet" href="../css/chrome.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+
+<link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+
+<link rel="stylesheet" href="../highlight.css">
+<link rel="stylesheet" href="../tomorrow-night.css">
+<link rel="stylesheet" href="../ayu-highlight.css">
+
+<link rel="stylesheet" href="../mytheme/fonts/cascadia-font.css">
+<link rel="stylesheet" href="../mytheme/style.css">
+</head>
+<body>
+
+<script type="text/javascript">
+            var path_to_root = "../index.html";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+<script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+<script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+<script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+<nav id="sidebar" class="sidebar" aria-label="Table of contents">
+<div class="sidebar-scrollbox">
+<ol class="chapter"><li class="chapter-item expanded affix "><a href="../about.html">說明</a></li><li class="chapter-item expanded "><a href="../ch1/00.html"><strong aria-hidden="true">1.</strong> Rust入門第一課</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch1/01_expression.html"><strong aria-hidden="true">1.1.</strong> Rust是基於表達式的語言</a></li></ol></li><li class="chapter-item expanded "><a href="../ch2/00.html"><strong aria-hidden="true">2.</strong> 變量聲明和函數定義</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch2/01_variable.html"><strong aria-hidden="true">2.1.</strong> 理解Rust中的變量賦值</a></li><li class="chapter-item expanded "><a href="../ch2/02_function.html"><strong aria-hidden="true">2.2.</strong> 定義函數</a></li></ol></li><li class="chapter-item expanded "><a href="../ch3/00.html"><strong aria-hidden="true">3.</strong> Rust原始數據類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch3/01_number.html"><strong aria-hidden="true">3.1.</strong> 數值類型</a></li><li class="chapter-item expanded "><a href="../ch3/02_bool.html"><strong aria-hidden="true">3.2.</strong> 布爾類型</a></li><li class="chapter-item expanded "><a href="../ch3/03_char.html"><strong aria-hidden="true">3.3.</strong> char類型</a></li><li class="chapter-item expanded "><a href="../ch3/04_str_string.html"><strong aria-hidden="true">3.4.</strong> 字符串：str和String</a></li><li class="chapter-item expanded "><a href="../ch3/05_tuple_unit.html"><strong aria-hidden="true">3.5.</strong> tuple類型</a></li><li class="chapter-item expanded "><a href="../ch3/06_array.html"><strong aria-hidden="true">3.6.</strong> Array類型</a></li><li class="chapter-item expanded "><a href="../ch3/07_reference_type.html"><strong aria-hidden="true">3.7.</strong> Rust中的引用類型</a></li><li class="chapter-item expanded "><a href="../ch3/08_slice.html"><strong aria-hidden="true">3.8.</strong> Slice類型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch4/00.html"><strong aria-hidden="true">4.</strong> Rust操作符和流程控制語句</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch4/01_operators.html"><strong aria-hidden="true">4.1.</strong> Rust操作符</a></li><li class="chapter-item expanded "><a href="../ch4/02_range_expression.html"><strong aria-hidden="true">4.2.</strong> 範圍表達式</a></li><li class="chapter-item expanded "><a href="../ch4/03_flow_control.html"><strong aria-hidden="true">4.3.</strong> 流程控制結構</a></li></ol></li><li class="chapter-item expanded "><a href="../ch5/00.html"><strong aria-hidden="true">5.</strong> 理解Rust內存管理</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch5/01_heap_stack.html"><strong aria-hidden="true">5.1.</strong> 堆空間和棧空間</a></li><li class="chapter-item expanded "><a href="../ch5/02_rust_mem.html"><strong aria-hidden="true">5.2.</strong> Rust如何使用堆和棧</a></li><li class="chapter-item expanded "><a href="../ch5/03_rust_place_value.html"><strong aria-hidden="true">5.3.</strong> 通過位置和值理解內存模型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch6/00.html"><strong aria-hidden="true">6.</strong> 理解Rust的所有權和借用規則</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch6/01_scope.html"><strong aria-hidden="true">6.1.</strong> 理解Rust的變量作用域</a></li><li class="chapter-item expanded "><a href="../ch6/02_move_copy.html"><strong aria-hidden="true">6.2.</strong> Rust所有權規則概述</a></li><li class="chapter-item expanded "><a href="../ch6/03_ref_ownership_borrow.html"><strong aria-hidden="true">6.3.</strong> 引用和所有權借用</a></li><li class="chapter-item expanded "><a href="../ch6/04_understand_mutable_ref.html"><strong aria-hidden="true">6.4.</strong> 理解可變引用的排他性</a></li><li class="chapter-item expanded "><a href="../ch6/05_re_understand_move.html"><strong aria-hidden="true">6.5.</strong> 再次理解Move</a></li><li class="chapter-item expanded "><a href="../ch6/06_ref_copy_clone.html"><strong aria-hidden="true">6.6.</strong> 引用類型的Copy和Clone</a></li></ol></li><li class="chapter-item expanded "><a href="../ch7/00.html"><strong aria-hidden="true">7.</strong> Vec類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch7/01_vec_basic.html"><strong aria-hidden="true">7.1.</strong> Vec的基本使用</a></li><li class="chapter-item expanded "><a href="../ch7/02_vec_capacity_reallocation.html"><strong aria-hidden="true">7.2.</strong> Vec的內存佈局</a></li><li class="chapter-item expanded "><a href="../ch7/03_vec_method.html"><strong aria-hidden="true">7.3.</strong> vec的常用方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch8/00.html"><strong aria-hidden="true">8.</strong> Struct類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch8/01_struct_basic.html"><strong aria-hidden="true">8.1.</strong> Struct的基本使用</a></li><li class="chapter-item expanded "><a href="../ch8/02_output_struct.html"><strong aria-hidden="true">8.2.</strong> 調試輸出Struct</a></li><li class="chapter-item expanded "><a href="../ch8/03_struct_methods.html"><strong aria-hidden="true">8.3.</strong> 定義Struct的方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch9/00.html"><strong aria-hidden="true">9.</strong> Enum類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch9/01_enum_basis.html"><strong aria-hidden="true">9.1.</strong> Enum的基本使用</a></li><li class="chapter-item expanded "><a href="../ch9/02_more_about_enum.html"><strong aria-hidden="true">9.2.</strong> 定義Enum的完整語法</a></li><li class="chapter-item expanded "><a href="../ch9/03_enum_methods.html"><strong aria-hidden="true">9.3.</strong> 為枚舉類型定義方法</a></li></ol></li><li class="chapter-item expanded "><a href="00.html"><strong aria-hidden="true">10.</strong> 模式匹配</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01_pattern_match_basis.html"><strong aria-hidden="true">10.1.</strong> 模式匹配的基本使用</a></li><li class="chapter-item expanded "><a href="02_pattern_details.html"><strong aria-hidden="true">10.2.</strong> 模式的完整語法</a></li><li class="chapter-item expanded "><a href="03_deconstruction.html" class="active"><strong aria-hidden="true">10.3.</strong> 模式解構賦值</a></li></ol></li><li class="chapter-item expanded "><a href="../ch11/00.html"><strong aria-hidden="true">11.</strong> Trait和Trait Object</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch11/01_trait_basis.html"><strong aria-hidden="true">11.1.</strong> Trait的基本用法</a></li><li class="chapter-item expanded "><a href="../ch11/02_more_about_trait.html"><strong aria-hidden="true">11.2.</strong> 再多理解一點Trait</a></li><li class="chapter-item expanded "><a href="../ch11/03_trait_inherite.html"><strong aria-hidden="true">11.3.</strong> Trait繼承</a></li><li class="chapter-item expanded "><a href="../ch11/04_trait_object.html"><strong aria-hidden="true">11.4.</strong> Trait Object</a></li></ol></li><li class="chapter-item expanded "><a href="../ch12/00.html"><strong aria-hidden="true">12.</strong> 泛型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch12/01_generic_basis.html"><strong aria-hidden="true">12.1.</strong> 泛型的基本使用</a></li><li class="chapter-item expanded "><a href="../ch12/02_where_generic.html"><strong aria-hidden="true">12.2.</strong> 使用泛型的位置</a></li><li class="chapter-item expanded "><a href="../ch12/03_trait_obj_generic.html"><strong aria-hidden="true">12.3.</strong> Trait對象和泛型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch100/00.html"><strong aria-hidden="true">13.</strong> Rust異步編程和tokio框架</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch100/01_understand_tokio_runtime.html"><strong aria-hidden="true">13.1.</strong> 理解tokio的核心(1): runtime</a></li><li class="chapter-item expanded "><a href="../ch100/02_understand_tokio_task.html"><strong aria-hidden="true">13.2.</strong> 理解tokio的核心(2): task</a></li><li class="chapter-item expanded "><a href="../ch100/03_use_tokio_time.html"><strong aria-hidden="true">13.3.</strong> 使用tokio Timer</a></li><li class="chapter-item expanded "><a href="../ch100/04_task_communication_and_sync.html"><strong aria-hidden="true">13.4.</strong> tokio task的通信和同步(1): 簡介</a></li><li class="chapter-item expanded "><a href="../ch100/05_task_communication.html"><strong aria-hidden="true">13.5.</strong> tokio task的通信和同步(2): 通信</a></li><li class="chapter-item expanded "><a href="../ch100/06_task_state_sync.html"><strong aria-hidden="true">13.6.</strong> tokio task的通信和同步(3): 同步</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.7.</strong> 異步IO/fs/Stream/Frame沒寫完整，完整後再發</div></li></ol></li><li class="chapter-item expanded "><a href="../ch101/tracing.html"><strong aria-hidden="true">14.</strong> Rust日誌記錄</a></li></ol>
+</div>
+<div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+</nav>
+<div id="page-wrapper" class="page-wrapper">
+<div class="page">
+<div id="menu-bar-hover-placeholder"></div>
+<div id="menu-bar" class="menu-bar sticky bordered">
+<div class="left-buttons">
+<button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+<i class="fa fa-bars"></i>
+</button>
+<button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+<i class="fa fa-paint-brush"></i>
+</button>
+<ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+<li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+<li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+<li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+<li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+<li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+</ul>
+<button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+<i class="fa fa-search"></i>
+</button>
+</div>
+<h1 class="menu-title">Rust入門祕籍</h1>
+<h1 class="menu-title menu-blog">
+<a href="https://www.junmajinlong.com/">博客</a>
+</h1>
+<div class="right-buttons">
+<a href="../print.html" title="Print this book" aria-label="Print this book">
+<i id="print-button" class="fa fa-print"></i>
+</a>
+</div>
+</div>
+<div id="search-wrapper" class="hidden">
+<form id="searchbar-outer" class="searchbar-outer">
+<input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+</form>
+<div id="searchresults-outer" class="searchresults-outer hidden">
+<div id="searchresults-header" class="searchresults-header"></div>
+<ul id="searchresults">
+</ul>
+</div>
+</div>
+
+<script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+<div id="content" class="content">
+<main>
+<div class="sidetoc"><nav class="pagetoc"></nav></div>
+<h2 id="模式解構賦值"><a class="header" href="#模式解構賦值">模式解構賦值</a></h2>
+<p>模式匹配時可用於解構賦值，可解構的類型包括struct、enum、tuple、slice等等。</p>
+<p>解構賦值時，可使用<code>_</code>作為某個變量的佔位符，使用<code>..</code>作為剩餘所有變量的佔位符(使用<code>..</code>時不能產生歧義，例如<code>(..,x,..)</code>是有歧義的)。當解構的類型包含了命名字段時，可使用<code>fieldname</code>簡化<code>fieldname: fieldname</code>的書寫。</p>
+<h3 id="解構struct"><a class="header" href="#解構struct">解構struct</a></h3>
+<p>解構Struct時，會將待解構的struct各個字段和Pattern中的各個字段進行匹配，併為找到的字段變量進行賦值。</p>
+<p>當Pattern中的字段名和字段變量同名時，可簡寫。例如<code>P{name: name, age: age}</code>和<code>P{name, age}</code>是等價的Pattern。</p>
+<pre><pre class="playground"><code class="language-rust">struct Point2 {
+  x: i32,
+  y: i32,
+}
+
+struct Point3 {
+  x: i32,
+  y: i32,
+  z: i32,
+}
+
+fn main(){
+  let p = Point2{x: 0, y: 7};
+  
+  // 等價於 let Point2{x: x, y: y} = p;
+  let Point2{x, y} = p;
+  println!(&quot;x: {}, y: {}&quot;, x, y);
+  // 解構時可修改字段變量名: let Point2{x: a, y: b} = p;
+  // 此時，變量a和b將被賦值
+   
+  let ori = Point{x: 0, y: 0, z: 0};
+  match ori{
+    // 使用..忽略解構後剩餘的字段
+    Point3 {x, ..} =&gt; println!(&quot;{}&quot;, x),
+  }
+}
+</code></pre></pre>
+<h3 id="解構enum"><a class="header" href="#解構enum">解構enum</a></h3>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">enum IPAddr {
+  IPAddr4(u8,u8,u8,u8),
+  IPAddr6(String),
+}
+
+fn main(){
+  let ipv4 = IPAddr::IPAddr4(127,0,0,1);
+  match ipv4 {
+    // 丟棄解構後的第四個值
+    IPAddr(a,b,c,_) =&gt; println!(&quot;{},{},{}&quot;, a,b,c),
+    IPAddr(s) =&gt; println!(&quot;{}&quot;, s),
+  }
+}
+</code></pre></pre>
+<h3 id="解構元組"><a class="header" href="#解構元組">解構元組</a></h3>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let ((feet, inches), Point {x, y}) = ((3, 1), Point { x: 3, y: -1 });
+<span class="boring">}
+</span></code></pre></pre>
+<h3 id="綁定變量名"><a class="header" href="#綁定變量名">@綁定變量名</a></h3>
+<p>當解構後進行模式匹配時，如果某個值沒有對應的變量名，則可以使用<code>@</code>手動綁定一個變量名。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct S(i32, i32);
+
+match S(1, 2) {
+  // 如果匹配1成功，將其賦值給變量z
+  // 如果匹配2成功，也將其賦值給變量z
+    S(z @ 1, _) | S(_, z @ 2) =&gt; assert_eq!(z, 1),
+    _ =&gt; panic!(),
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>再例如，匹配並解構一個數組：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let arr = [&quot;x&quot;, &quot;y&quot;, &quot;z&quot;];
+match arr {
+  [.., &quot;!&quot;] =&gt; println!(&quot;!!!&quot;),
+  // 匹配成功，start = [&quot;x&quot;, &quot;y&quot;]
+  [start @ .., &quot;z&quot;] =&gt; println!(&quot;starts: {:?}&quot;, start),
+  [&quot;a&quot;, end @ ..] =&gt; println!(&quot;ends: {:?}&quot;, end),
+  rest =&gt; println!(&quot;{:?}&quot;, rest),
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2 id="ref和mut修飾模式中的變量"><a class="header" href="#ref和mut修飾模式中的變量">ref和mut修飾模式中的變量</a></h2>
+<p>當進行解構賦值時，很可能會將變量擁有的所有權轉移出去，從而使得原始變量變得不完整或直接失效。</p>
+<pre><pre class="playground"><code class="language-rust">struct Person{
+  name: String,
+  age: i32,
+}
+
+fn main(){
+  let p = Person{name: String::from(&quot;junmajinlong&quot;), age: 23};
+  let Person{name, age} = p;
+  
+  println!(&quot;{}&quot;, name);
+  println!(&quot;{}&quot;, age);
+  println!(&quot;{}&quot;, p.name);  // 錯誤，name字段所有權已轉移
+}
+</code></pre></pre>
+<p>如果想要在解構賦值時不丟失所有權，有以下幾種方式：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 方式一：解構表達式的引用
+let Person{name, age} = &amp;p;
+
+// 方式二：解構表達式的克隆，適用於可調用clone()方法的類型
+// 但Person struct沒有clone()方法
+
+// 方式三：在模式的某些字段或元素上使用ref關鍵字修飾變量
+let Person{ref name, age} = p;
+let Person{name: ref n, age} = p;
+<span class="boring">}
+</span></code></pre></pre>
+<p>在模式中使用<code>ref</code>修飾變量名相當於對被解構的<strong>字段或元素</strong>上使用<code>&amp;</code>進行引用。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let x = 5_i32;         // x的類型：i32
+let x = &amp;5_i32;        // x的類型：&amp;i32
+let ref x = 5_i32;     // x的類型：&amp;i32
+let ref x = &amp;5_i32;    // x的類型：&amp;&amp;i32
+<span class="boring">}
+</span></code></pre></pre>
+<p>因此，使用ref修飾了模式中的變量後，解構賦值時對應值的所有權就不會發生轉移，而是以只讀的方式借用給該變量。</p>
+<p>如果想要對解構賦值的變量具有數據的修改權，需要使用<code>mut</code>關鍵字修飾模式中的變量，但這樣會轉移原值的所有權，此時可不要求原變量是可變的。</p>
+<pre><pre class="playground"><code class="language-rust">#[derive(Debug)]
+struct Person {
+  name: String,
+  age: i32,
+}
+
+fn main() {
+  let p = Person {
+    name: String::from(&quot;junma&quot;),
+    age: 23,
+  };
+  match p {
+    Person { mut name, age } =&gt; {
+      name.push_str(&quot;jinlong&quot;);
+      println!(&quot;name: {}, age: {}&quot;, name, age)
+    },
+  }
+  //println!(&quot;{:?}&quot;, p);    // 錯誤
+}
+</code></pre></pre>
+<p>如果不想在可修改數據時丟失所有權，可在mut的基礎上加上ref關鍵字，就像<code>&amp;mut xxx</code>一樣。</p>
+<pre><pre class="playground"><code class="language-rust">#[derive(Debug)]
+struct Person {
+  name: String,
+  age: i32,
+}
+
+fn main() {
+  let mut p = Person {   // 這裡要改為mut p
+    name: String::from(&quot;junma&quot;),
+    age: 23,
+  };
+  match p {
+    // 這裡要改為ref mut name
+    Person { ref mut name, age } =&gt; {
+      name.push_str(&quot;jinlong&quot;);
+      println!(&quot;name: {}, age: {}&quot;, name, age)
+    },
+  }
+  println!(&quot;{:?}&quot;, p);
+}
+</code></pre></pre>
+<p>注意，使用<code>ref</code>修飾變量只是<strong>借用了被解構表達式的一部分值，而不是借用整個值</strong>。如果要匹配的是一個引用，則使用<code>&amp;</code>。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let a = &amp;(1,2,3);       // a是一個引用
+let (t1,t2,t3) = a;     // t1,t2,t3都是引用類型&amp;i32
+let &amp;(x,y,z) = a;       // x,y,z都是i32類型
+let &amp;(ref xx,yy,zz) = a;  // xx是&amp;i32類型，yy,zz是i32類型
+<span class="boring">}
+</span></code></pre></pre>
+<p>最後，也可以將<code>match value{}</code>的value進行修飾，例如<code>match &amp;mut value {}</code>，這樣就不需要在模式中去加ref和mut了。這對於有多個分支需要解構賦值，且每個模式中都需要ref/mut修飾變量的match非常有用。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  let mut s = &quot;hello&quot;.to_string();
+  match &amp;mut s {   // 對可變引用進行匹配
+    // 匹配成功時，變量也是對原數據的可變引用
+    x =&gt; x.push_str(&quot;world&quot;),
+  }
+  println!(&quot;{}&quot;, s);
+}
+</code></pre></pre>
+<h2 id="匹配守衛match-guard"><a class="header" href="#匹配守衛match-guard">匹配守衛(match guard)</a></h2>
+<p>匹配守衛允許匹配分支添加<strong>額外的後置條件</strong>：當匹配了某分支的模式後，再檢查該分支的守衛後置條件，如果守衛條件也通過，則成功匹配該分支。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let x = 33;
+match x {
+  // 先範圍匹配，範圍匹配成功後，再檢查是否是偶數
+  // 如果範圍匹配沒有成功，則不會檢查後置條件
+  0..=50 if x % 2 == 0 =&gt; {
+    println!(&quot;x in [0, 50], and it is an even&quot;);
+  },
+  0..=50 =&gt; println!(&quot;x in [0, 50], but it is not an even&quot;),
+  _ =&gt; (),
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>注意，後置條件的優先級很低。例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 下面兩個分支的寫法等價
+4 | 5 | 6 if bool_expr =&gt; println!(&quot;yes&quot;),
+(4 | 5 | 6) if bool_expr =&gt; println!(&quot;yes&quot;),
+<span class="boring">}
+</span></code></pre></pre>
+<h2 id="注意1對引用進行解構賦值時"><a class="header" href="#注意1對引用進行解構賦值時">注意(1)：對引用進行解構賦值時</a></h2>
+<p>在解構賦值時，<strong>如果解構的是一個引用，則被匹配的變量也將被賦值為對應元素的引用</strong>。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let t = &amp;(1,2,3);    // t是一個引用
+let (t0,t1,t2) = t;  // t0,t1,t2的類型都是&amp;i32
+let t0 = t.0;   // t0的類型是i32而不是&amp;i32，因為t.0等價於(*t).0
+let t0 = &amp;t.0;  // t0的類型是&amp;i32而不是i32，&amp;t.0等價於&amp;(t.0)而非(&amp;t).0
+<span class="boring">}
+</span></code></pre></pre>
+<p>因此，當使用模式匹配語法<code>for i in t</code>進行迭代時：</p>
+<ul>
+<li>如果t不是一個引用，則t的每一個元素都會move給i</li>
+<li>如果t是一個引用，則i將是每一個元素的引用</li>
+<li>同理，<code>for i in &amp;mut t</code>和<code>for i in mut t</code>也一樣</li>
+</ul>
+<h2 id="注意2對解引用進行匹配時"><a class="header" href="#注意2對解引用進行匹配時">注意(2)：對解引用進行匹配時</a></h2>
+<p>當<code>match VALUE</code>的VALUE是一個解引用<code>*xyz</code>時(因此，xyz是一個引用)，可能會發生所有權的轉移，此時可使用<code>xyz</code>或<code>&amp;*xyz</code>來代替<code>*xyz</code>。具體原因請參考：<a href="../ch6/05_deref_move_or_copy.html">解引用(deref)的所有權轉移問題</a>。</p>
+<p>下面是一個示例：</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  // p是一個Person實例的引用
+  let p = &amp;Person {
+    name: &quot;junmajinlong&quot;.to_string(),
+    age: 23,
+  };
+  
+  // 使用&amp;*p或p進行匹配，而不是*p
+  // 使用*p將報錯，因為會轉移所有權
+  match &amp;*p {
+    Person {name, age} =&gt;{
+      println!(&quot;{}, {}&quot;,name, age);
+    },
+    _ =&gt; (),
+  }
+}
+
+struct Person {
+  name: String,
+  age: u8,
+}
+</code></pre></pre>
+</main>
+<nav class="nav-wrapper" aria-label="Page navigation">
+
+<a rel="prev" href="02_pattern_details.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="../ch11/00.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+<div style="clear: both"></div>
+</nav>
+</div>
+</div>
+<nav class="nav-wide-wrapper" aria-label="Page navigation">
+<a rel="prev" href="02_pattern_details.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="../ch11/00.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+</nav>
+</div>
+
+<script type="text/javascript">
+            var socket = new WebSocket("ws://0.0.0.0:8880/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+<script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+<script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+<script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+<script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" src="../mytheme/sidebar.js"></script>
+</body>
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch10/03_deconstruction.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:54 GMT -->
+</html>

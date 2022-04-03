@@ -1,0 +1,629 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch100/06_task_state_sync.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:55 GMT -->
+<head>
+
+<meta charset="UTF-8">
+<title>tokio task的通信和同步(3): 同步 - Rust入門祕籍</title>
+
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta name="description" content="Rust入門">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="../favicon.svg">
+<link rel="shortcut icon" href="../favicon.png">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/general.css">
+<link rel="stylesheet" href="../css/chrome.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+
+<link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+
+<link rel="stylesheet" href="../highlight.css">
+<link rel="stylesheet" href="../tomorrow-night.css">
+<link rel="stylesheet" href="../ayu-highlight.css">
+
+<link rel="stylesheet" href="../mytheme/fonts/cascadia-font.css">
+<link rel="stylesheet" href="../mytheme/style.css">
+</head>
+<body>
+
+<script type="text/javascript">
+            var path_to_root = "../index.html";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+<script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+<script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+<script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+<nav id="sidebar" class="sidebar" aria-label="Table of contents">
+<div class="sidebar-scrollbox">
+<ol class="chapter"><li class="chapter-item expanded affix "><a href="../about.html">說明</a></li><li class="chapter-item expanded "><a href="../ch1/00.html"><strong aria-hidden="true">1.</strong> Rust入門第一課</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch1/01_expression.html"><strong aria-hidden="true">1.1.</strong> Rust是基於表達式的語言</a></li></ol></li><li class="chapter-item expanded "><a href="../ch2/00.html"><strong aria-hidden="true">2.</strong> 變量聲明和函數定義</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch2/01_variable.html"><strong aria-hidden="true">2.1.</strong> 理解Rust中的變量賦值</a></li><li class="chapter-item expanded "><a href="../ch2/02_function.html"><strong aria-hidden="true">2.2.</strong> 定義函數</a></li></ol></li><li class="chapter-item expanded "><a href="../ch3/00.html"><strong aria-hidden="true">3.</strong> Rust原始數據類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch3/01_number.html"><strong aria-hidden="true">3.1.</strong> 數值類型</a></li><li class="chapter-item expanded "><a href="../ch3/02_bool.html"><strong aria-hidden="true">3.2.</strong> 布爾類型</a></li><li class="chapter-item expanded "><a href="../ch3/03_char.html"><strong aria-hidden="true">3.3.</strong> char類型</a></li><li class="chapter-item expanded "><a href="../ch3/04_str_string.html"><strong aria-hidden="true">3.4.</strong> 字符串：str和String</a></li><li class="chapter-item expanded "><a href="../ch3/05_tuple_unit.html"><strong aria-hidden="true">3.5.</strong> tuple類型</a></li><li class="chapter-item expanded "><a href="../ch3/06_array.html"><strong aria-hidden="true">3.6.</strong> Array類型</a></li><li class="chapter-item expanded "><a href="../ch3/07_reference_type.html"><strong aria-hidden="true">3.7.</strong> Rust中的引用類型</a></li><li class="chapter-item expanded "><a href="../ch3/08_slice.html"><strong aria-hidden="true">3.8.</strong> Slice類型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch4/00.html"><strong aria-hidden="true">4.</strong> Rust操作符和流程控制語句</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch4/01_operators.html"><strong aria-hidden="true">4.1.</strong> Rust操作符</a></li><li class="chapter-item expanded "><a href="../ch4/02_range_expression.html"><strong aria-hidden="true">4.2.</strong> 範圍表達式</a></li><li class="chapter-item expanded "><a href="../ch4/03_flow_control.html"><strong aria-hidden="true">4.3.</strong> 流程控制結構</a></li></ol></li><li class="chapter-item expanded "><a href="../ch5/00.html"><strong aria-hidden="true">5.</strong> 理解Rust內存管理</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch5/01_heap_stack.html"><strong aria-hidden="true">5.1.</strong> 堆空間和棧空間</a></li><li class="chapter-item expanded "><a href="../ch5/02_rust_mem.html"><strong aria-hidden="true">5.2.</strong> Rust如何使用堆和棧</a></li><li class="chapter-item expanded "><a href="../ch5/03_rust_place_value.html"><strong aria-hidden="true">5.3.</strong> 通過位置和值理解內存模型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch6/00.html"><strong aria-hidden="true">6.</strong> 理解Rust的所有權和借用規則</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch6/01_scope.html"><strong aria-hidden="true">6.1.</strong> 理解Rust的變量作用域</a></li><li class="chapter-item expanded "><a href="../ch6/02_move_copy.html"><strong aria-hidden="true">6.2.</strong> Rust所有權規則概述</a></li><li class="chapter-item expanded "><a href="../ch6/03_ref_ownership_borrow.html"><strong aria-hidden="true">6.3.</strong> 引用和所有權借用</a></li><li class="chapter-item expanded "><a href="../ch6/04_understand_mutable_ref.html"><strong aria-hidden="true">6.4.</strong> 理解可變引用的排他性</a></li><li class="chapter-item expanded "><a href="../ch6/05_re_understand_move.html"><strong aria-hidden="true">6.5.</strong> 再次理解Move</a></li><li class="chapter-item expanded "><a href="../ch6/06_ref_copy_clone.html"><strong aria-hidden="true">6.6.</strong> 引用類型的Copy和Clone</a></li></ol></li><li class="chapter-item expanded "><a href="../ch7/00.html"><strong aria-hidden="true">7.</strong> Vec類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch7/01_vec_basic.html"><strong aria-hidden="true">7.1.</strong> Vec的基本使用</a></li><li class="chapter-item expanded "><a href="../ch7/02_vec_capacity_reallocation.html"><strong aria-hidden="true">7.2.</strong> Vec的內存佈局</a></li><li class="chapter-item expanded "><a href="../ch7/03_vec_method.html"><strong aria-hidden="true">7.3.</strong> vec的常用方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch8/00.html"><strong aria-hidden="true">8.</strong> Struct類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch8/01_struct_basic.html"><strong aria-hidden="true">8.1.</strong> Struct的基本使用</a></li><li class="chapter-item expanded "><a href="../ch8/02_output_struct.html"><strong aria-hidden="true">8.2.</strong> 調試輸出Struct</a></li><li class="chapter-item expanded "><a href="../ch8/03_struct_methods.html"><strong aria-hidden="true">8.3.</strong> 定義Struct的方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch9/00.html"><strong aria-hidden="true">9.</strong> Enum類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch9/01_enum_basis.html"><strong aria-hidden="true">9.1.</strong> Enum的基本使用</a></li><li class="chapter-item expanded "><a href="../ch9/02_more_about_enum.html"><strong aria-hidden="true">9.2.</strong> 定義Enum的完整語法</a></li><li class="chapter-item expanded "><a href="../ch9/03_enum_methods.html"><strong aria-hidden="true">9.3.</strong> 為枚舉類型定義方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch10/00.html"><strong aria-hidden="true">10.</strong> 模式匹配</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch10/01_pattern_match_basis.html"><strong aria-hidden="true">10.1.</strong> 模式匹配的基本使用</a></li><li class="chapter-item expanded "><a href="../ch10/02_pattern_details.html"><strong aria-hidden="true">10.2.</strong> 模式的完整語法</a></li><li class="chapter-item expanded "><a href="../ch10/03_deconstruction.html"><strong aria-hidden="true">10.3.</strong> 模式解構賦值</a></li></ol></li><li class="chapter-item expanded "><a href="../ch11/00.html"><strong aria-hidden="true">11.</strong> Trait和Trait Object</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch11/01_trait_basis.html"><strong aria-hidden="true">11.1.</strong> Trait的基本用法</a></li><li class="chapter-item expanded "><a href="../ch11/02_more_about_trait.html"><strong aria-hidden="true">11.2.</strong> 再多理解一點Trait</a></li><li class="chapter-item expanded "><a href="../ch11/03_trait_inherite.html"><strong aria-hidden="true">11.3.</strong> Trait繼承</a></li><li class="chapter-item expanded "><a href="../ch11/04_trait_object.html"><strong aria-hidden="true">11.4.</strong> Trait Object</a></li></ol></li><li class="chapter-item expanded "><a href="../ch12/00.html"><strong aria-hidden="true">12.</strong> 泛型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch12/01_generic_basis.html"><strong aria-hidden="true">12.1.</strong> 泛型的基本使用</a></li><li class="chapter-item expanded "><a href="../ch12/02_where_generic.html"><strong aria-hidden="true">12.2.</strong> 使用泛型的位置</a></li><li class="chapter-item expanded "><a href="../ch12/03_trait_obj_generic.html"><strong aria-hidden="true">12.3.</strong> Trait對象和泛型</a></li></ol></li><li class="chapter-item expanded "><a href="00.html"><strong aria-hidden="true">13.</strong> Rust異步編程和tokio框架</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01_understand_tokio_runtime.html"><strong aria-hidden="true">13.1.</strong> 理解tokio的核心(1): runtime</a></li><li class="chapter-item expanded "><a href="02_understand_tokio_task.html"><strong aria-hidden="true">13.2.</strong> 理解tokio的核心(2): task</a></li><li class="chapter-item expanded "><a href="03_use_tokio_time.html"><strong aria-hidden="true">13.3.</strong> 使用tokio Timer</a></li><li class="chapter-item expanded "><a href="04_task_communication_and_sync.html"><strong aria-hidden="true">13.4.</strong> tokio task的通信和同步(1): 簡介</a></li><li class="chapter-item expanded "><a href="05_task_communication.html"><strong aria-hidden="true">13.5.</strong> tokio task的通信和同步(2): 通信</a></li><li class="chapter-item expanded "><a href="06_task_state_sync.html" class="active"><strong aria-hidden="true">13.6.</strong> tokio task的通信和同步(3): 同步</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.7.</strong> 異步IO/fs/Stream/Frame沒寫完整，完整後再發</div></li></ol></li><li class="chapter-item expanded "><a href="../ch101/tracing.html"><strong aria-hidden="true">14.</strong> Rust日誌記錄</a></li></ol>
+</div>
+<div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+</nav>
+<div id="page-wrapper" class="page-wrapper">
+<div class="page">
+<div id="menu-bar-hover-placeholder"></div>
+<div id="menu-bar" class="menu-bar sticky bordered">
+<div class="left-buttons">
+<button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+<i class="fa fa-bars"></i>
+</button>
+<button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+<i class="fa fa-paint-brush"></i>
+</button>
+<ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+<li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+<li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+<li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+<li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+<li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+</ul>
+<button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+<i class="fa fa-search"></i>
+</button>
+</div>
+<h1 class="menu-title">Rust入門祕籍</h1>
+<h1 class="menu-title menu-blog">
+<a href="https://www.junmajinlong.com/">博客</a>
+</h1>
+<div class="right-buttons">
+<a href="../print.html" title="Print this book" aria-label="Print this book">
+<i id="print-button" class="fa fa-print"></i>
+</a>
+</div>
+</div>
+<div id="search-wrapper" class="hidden">
+<form id="searchbar-outer" class="searchbar-outer">
+<input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+</form>
+<div id="searchresults-outer" class="searchresults-outer hidden">
+<div id="searchresults-header" class="searchresults-header"></div>
+<ul id="searchresults">
+</ul>
+</div>
+</div>
+
+<script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+<div id="content" class="content">
+<main>
+<div class="sidetoc"><nav class="pagetoc"></nav></div>
+<h2 id="tokio-task的通信和同步3-同步"><a class="header" href="#tokio-task的通信和同步3-同步">tokio task的通信和同步(3): 同步</a></h2>
+<p><code>tokio::sync</code>模塊提供了幾種狀態同步的機制：</p>
+<ul>
+<li>Mutex: 互斥鎖</li>
+<li>RwLock: 讀寫鎖</li>
+<li>Notify: 通知喚醒機制</li>
+<li>Barrier: 屏障</li>
+<li>Semaphore: 信號量</li>
+</ul>
+<p>因為tokio是跨線程執行任務的，因此通常會使用<code>Arc</code>來封裝這些同步原語，以使其能夠跨線程。例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mutex = Arc::new(Mutex::new());
+let rwlock = Arc::new(Mutex::RwLock());
+<span class="boring">}
+</span></code></pre></pre>
+<h3 id="mutex互斥鎖"><a class="header" href="#mutex互斥鎖">Mutex互斥鎖</a></h3>
+<p>當多個併發任務(tokio task或線程)可能會修改同一個數據時，就會出現數據競爭現象(競態)，具體表現為：某個任務對該數據的修改不生效或被覆蓋。</p>
+<p>互斥鎖的作用，就是保護併發情況下可能會出現競態的代碼，這部分代碼稱為臨界區。當某個任務要執行臨界區中的代碼時，必須先申請鎖，申請成功，則可以執行這部分代碼，執行完成這部分代碼後釋放鎖。釋放鎖之前，其它任務無法再申請鎖，它們必須等待鎖被釋放。</p>
+<p>假如某個任務一直持有鎖，其它任務將一直等待。因此，互斥鎖應當儘量快地釋放，這樣可以提高併發量。</p>
+<p>簡單介紹完互斥鎖之後，再看tokio提供的互斥鎖。</p>
+<p><code>tokio::sync::Mutex</code>使用new()來創建互斥鎖，使用lock()來申請鎖，申請鎖成功時將返回MutexGuard，並通過drop的方式來釋放鎖。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
+use tokio::{self, sync, runtime::Runtime, time::{self, Duration}};
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let mutex = Arc::new(sync::Mutex::new(0));
+
+        for i in 0..10 {
+            let lock = Arc::clone(&amp;mutex);
+            tokio::spawn(async move {
+                let mut data = lock.lock().await;
+                *data += 1;
+                println!(&quot;task: {}, data: {}&quot;, i, data);
+            });
+        }
+
+        time::sleep(Duration::from_secs(1)).await;
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>task: 0, data: 1
+task: 2, data: 2
+task: 3, data: 3
+task: 4, data: 4
+task: 1, data: 5
+task: 7, data: 6
+task: 9, data: 7
+task: 6, data: 8
+task: 5, data: 9
+task: 8, data: 10
+</code></pre>
+<p>可以看到，任務的調度順序是隨機的，但是數據加1的操作是依次完成的。</p>
+<p>需特別說明的是，<code>tokio::sync::Mutex</code>其內部使用了標準庫的互斥鎖，即<code>std::sync::Mutex</code>，而標準庫的互斥鎖是針對線程的，因此，使用tokio的互斥鎖時也會鎖住整個線程。此外，<code>tokio::sync::Mutex</code>是對標準庫的Mutex的封裝，性能相對要更差一些。也因此，官方文檔中建議，如非必須，應使用標準庫的Mutex或性能更高的<code>parking_lot</code>提供的互斥鎖，而不是tokio的Mutex。</p>
+<p>例如，將上面的示例該成標準庫的Mutex鎖。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let mutex = Arc::new(std::sync::Mutex::new(0));
+
+        for i in 0..10 {
+            let lock = mutex.clone();
+            tokio::spawn(async move {
+                let mut data = lock.lock().unwrap();
+                *data += 1;
+                println!(&quot;task: {}, data: {}&quot;, i, data);
+            });
+        }
+
+        time::sleep(Duration::from_secs(1)).await;
+    });
+}
+</code></pre></pre>
+<p>什麼情況下可以選擇使用tokio的Mutex？當跨await的時候，可以考慮使用tokio Mutex，因為這時使用標準庫的Mutex將編譯錯誤。當然，也有相應的解決方案。</p>
+<p>什麼是跨await？<strong>每個await都代表一個異步任務，跨await即表示該異步任務中出現了至少一個子任務。而每個異步任務都可能會被tokio內部偷到不同的線程上執行，因此跨await時要求其父任務實現Send Trait，這是因為子任務中可能會引用父任務中的數據</strong>。</p>
+<p>例如，下面定義的async函數中使用了標準庫的Mutex，且有子任務，這會編譯錯誤：</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::{Arc, Mutex, MutexGuard};
+use tokio::{self, runtime::Runtime, time::{self, Duration}};
+
+async fn add_1(mutex: &amp;Mutex&lt;u64&gt;) {
+    let mut lock = mutex.lock().unwrap();
+    *lock += 1;
+  
+    // 子任務，跨await，且引用了父任務中的數據
+    time::sleep(Duration::from_millis(*lock)).await;
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let mutex = Arc::new(Mutex::new(0));
+
+        for i in 0..10 {
+            let lock = mutex.clone();
+            tokio::spawn(async move {
+                add_1(&amp;lock).await;
+            });
+        }
+
+        time::sleep(Duration::from_secs(1)).await;
+    });
+}
+</code></pre></pre>
+<p><code>std::sync::MutexGuard</code>未實現Send，因此父任務<code>async move{}</code>語句塊是非Send的，於是編譯報錯。但如果上面的示例中沒有子任務<code>sleep().await</code>子任務，則編譯無錯，因為已經可以明確知道該Mutex所在的任務是在當前線程執行的。</p>
+<p>對於上面的錯誤，可簡單地使用<code>tokio::sync::Mutex</code>來修復。</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
+use tokio::{ self, runtime::Runtime, sync::{Mutex, MutexGuard}, time::{self, Duration} };
+
+async fn add_1(mutex: &amp;Mutex&lt;u64&gt;) {
+    let mut lock = mutex.lock().await;
+    *lock += 1;
+    time::sleep(Duration::from_millis(*lock)).await;
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let mutex = Arc::new(Mutex::new(0));
+        for i in 0..10 {
+            let lock = mutex.clone();
+            tokio::spawn(async move {
+                add_1(&amp;lock).await;
+            });
+        }
+
+        time::sleep(Duration::from_secs(1)).await;
+    });
+}
+</code></pre></pre>
+<p>前面已經說過，tokio的Mutex性能相對較差一些，因此可以不使用tokio Mutex的情況下，儘量不使用它。對於上面的需求，仍然可以繼續使用標準庫的Mutex，但需要做一些調整。</p>
+<p>例如，可以在子任務await之前，把所有未實現Send的數據都drop掉，保證子任務無法引用父任務中的任何非Send數據。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::sync::{Arc, Mutex, MutexGuard};
+
+async fn add_1(mutex: &amp;Mutex&lt;u64&gt;) {
+    {
+      let mut lock = mutex.lock().unwrap();
+      *lock += 1;
+    }
+    // 子任務，跨await，不引用父任務中的數據
+    time::sleep(Duration::from_millis(10)).await;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>這種方案的主要思想是讓子任務和父任務不要出現不安全的數據交叉。如果可以的話，應儘量隔離子任務和非Send數據所在的任務。上面的例子已經實現了這一點，但更好的方式是將子任務<code>sleep().await</code>從這個函數中移走。</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::{Arc, Mutex};
+#[allow(unused_imports)]
+use tokio::{ self, runtime::Runtime, sync, time::{self, Duration}};
+
+async fn add_1(mutex: &amp;Mutex&lt;u64&gt;) -&gt; u64 {
+    let mut lock = mutex.lock().unwrap();
+    *lock += 1;
+    *lock
+}  // 申請的互斥鎖在此被釋放
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let mutex = Arc::new(Mutex::new(0));
+
+        for i in 0..100 {
+            let lock = mutex.clone();
+            tokio::spawn(async move {
+                let n = add_1(&amp;lock).await;
+                time::sleep(Duration::from_millis(n)).await;
+            });
+        }
+
+        time::sleep(Duration::from_secs(1)).await;
+        println!(&quot;data: {}&quot;, mutex.lock().unwrap());
+    });
+}
+</code></pre></pre>
+<p>另外注意，標準庫的Mutex存在毒鎖問題。所謂毒鎖，即某個持有互斥鎖的線程panic了，那麼這個鎖有可能永遠得不到釋放(除非線程panic之前已經釋放)，也稱為被汙染的鎖。毒鎖問題可能很嚴重，因為出現毒鎖有可能意味著數據將從此開始不再準確，所以多數時候是直接讓毒鎖的panic向上傳播或單獨處理。但出現毒鎖並不總是危險的，所以標準庫也提供了對應的方案。</p>
+<p>但tokio Mutex不存在毒鎖問題，在持有Mutex的線程panic時，tokio的做法是直接釋放鎖。</p>
+<h3 id="rwlock讀寫鎖"><a class="header" href="#rwlock讀寫鎖">RwLock讀寫鎖</a></h3>
+<p>相比Mutex互斥鎖，讀寫鎖區分讀操作和寫操作，讀寫鎖允許多個讀鎖共存，但寫鎖獨佔。因此，在併發能力上它比Mutex要更好一些。</p>
+<p>下面是官方文檔中的一個示例：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::sync::RwLock;
+
+#[tokio::main]
+async fn main() {
+    let lock = RwLock::new(5);
+
+    // 多個讀鎖共存
+    {
+        // read()返回RwLockReadGuard
+        let r1 = lock.read().await;
+        let r2 = lock.read().await;
+        assert_eq!(*r1, 5);  // 對Guard解引用，即可得到其內部的值
+        assert_eq!(*r2, 5);
+    } // 讀鎖(r1, r2)在此釋放
+
+    // 只允許一個寫鎖存在
+    {
+        // write()返回RwLockWriteGuard
+        let mut w = lock.write().await;
+        *w += 1;
+        assert_eq!(*w, 6);
+    } // 寫鎖(w)被釋放
+}
+</code></pre></pre>
+<p>需注意，讀寫鎖有幾種不同的設計方式：</p>
+<ul>
+<li>讀鎖優先: 只要有讀操作申請鎖，優先將鎖分配給讀操作。這種方式可以提供非常好的併發能力，但是大量的讀操作可能會長時間阻擋寫操作</li>
+<li>寫鎖優先: 只要有寫操作申請鎖，優先將鎖分配給寫操作。這種方式可以保證寫操作不會被餓死，但會嚴重影響併發能力</li>
+</ul>
+<p>tokio RwLock實現的是寫鎖優先，它的具體規則如下：</p>
+<ol>
+<li>每次申請鎖時都將等待，申請鎖的異步任務被切換，CPU交還給調度器</li>
+<li>如果申請的是讀鎖，並且此時沒有寫鎖存在，則申請成功，對應的任務被喚醒</li>
+<li>如果申請的是讀鎖，但此時有寫鎖(包括寫鎖申請)的存在，那麼將等待所有的寫鎖釋放(因為寫鎖總是優先)</li>
+<li>如果申請的是寫鎖，如果此時沒有讀鎖的存在，則申請成功</li>
+<li>如果申請的是寫鎖，但此時有讀鎖的存在，那麼將等待當前正在持有的讀鎖釋放</li>
+</ol>
+<p>注意，RwLock的寫鎖優先會很容易產生死鎖。例如，下面的代碼會產生死鎖：</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
+use tokio::{self, runtime::Runtime, sync::RwLock, time::{self, Duration}};
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let lock = Arc::new(RwLock::new(0));
+
+        let lock1 = lock.clone();
+        tokio::spawn(async move {
+            let n = lock1.read().await;
+
+            time::sleep(Duration::from_secs(2)).await;
+            let nn = lock1.read().await;
+        });
+
+        time::sleep(Duration::from_secs(1)).await;
+        let mut wn = lock.write().await;
+        *wn = 2;
+    });
+}
+</code></pre></pre>
+<p>上面示例中，按照時間的流程，首先會在子任務中申請讀鎖，1秒後在當前任務中申請寫鎖，再1秒後子任務申請讀鎖。</p>
+<p>申請第一把讀鎖時，因為此時無鎖，所以讀鎖(即變量n)申請成功。1秒後申請寫鎖時，由於此時讀鎖n尚未釋放，因此寫鎖申請失敗，將等待。再1秒之後，繼續在子任務中申請讀鎖，但是此時有寫鎖申請存在，因此第二次申請讀鎖將等待，於是讀鎖寫鎖互相等待，死鎖出現了。</p>
+<p>當要使用寫鎖時，<strong>如果要避免死鎖，一定要保證同一個任務中的任意兩次鎖申請之間，前面已經無鎖，並且寫鎖儘早釋放</strong>。</p>
+<p>對於上面的示例，同一個子任務中申請兩次讀鎖，但是第二次申請讀鎖時，第一把讀鎖仍未釋放，這就產生了死鎖的可能。只需在第二次申請讀鎖前，將第一把讀鎖釋放即可。更完整一點，在寫鎖寫完數據後也手動釋放寫鎖(上面的示例中寫完就退出，寫鎖會自動釋放，因此無需手動釋放)。</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
+use tokio::{self, runtime::Runtime, sync::RwLock, time::{self, Duration}};
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let lock = Arc::new(RwLock::new(0));
+
+        let lock1 = lock.clone();
+        tokio::spawn(async move {
+            let n = lock1.read().await;
+            drop(n);  // 在申請第二把讀鎖前，先釋放第一把讀鎖
+
+            time::sleep(Duration::from_secs(2)).await;
+            let nn = lock1.read().await;
+            drop(nn);
+        });
+
+        time::sleep(Duration::from_secs(1)).await;
+        let mut wn = lock.write().await;
+        *wn = 2;
+        drop(wn);
+    });
+}
+</code></pre></pre>
+<p>RwLock還有一些其它的方法，在理解了RwLock申請鎖的規則之後，這些方法都很容易理解，可以自行去查看官方手冊。</p>
+<h3 id="notify通知喚醒"><a class="header" href="#notify通知喚醒">Notify通知喚醒</a></h3>
+<p>Notify提供了一種簡單的通知喚醒功能，它類似於只有一個信號燈的信號量。</p>
+<p>下面是官方文檔中的示例：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::sync::Notify;
+use std::sync::Arc;
+
+#[tokio::main]
+async fn main() {
+    let notify = Arc::new(Notify::new());
+    let notify2 = notify.clone();
+
+    tokio::spawn(async move {
+        notify2.notified().await;
+        println!(&quot;received notification&quot;);
+    });
+
+    println!(&quot;sending notification&quot;);
+    notify.notify_one();
+}
+</code></pre></pre>
+<p><code>Notify::new()</code>創建Notify實例，Notify實例初始時沒有permit位，permit可認為是執行權。</p>
+<p>每當調用<code>notified().await</code>時，將判斷此時是否有執行權，如果有，則可直接執行，否則將進入等待。因此，初始化之後立即調用<code>notified().await</code>將會等待。</p>
+<p>每當調用<code>notify_one()</code>時，將產生一個執行權，但多次調用也最多隻有一個執行權。因此，調用<code>notify_one()</code>之後再調用<code>notified().await</code>則並無需等待。</p>
+<p>如果同時有多個等待執行權的等候者，釋放一個執行權，在其它環境中可能會產生驚群現象，即大量等候者被一次性同時喚醒去爭搶一個資源，搶到的可以繼續執行，而未搶到的等候者又重新被阻塞。好在，tokio Notify沒有這種問題，tokio使用隊列方式讓等候者進行排隊，先等待的總是先獲取到執行權，因此不會一次性喚醒所有等候者，而是隻喚醒隊列頭部的那個等候者。</p>
+<p>Notify還有一個<code>notify_waiters()</code>方法，它不會釋放執行權，但是它會一次性喚醒所有正在等待的等候者。嚴格來說，是讓當前已經註冊的等候者(即已經調用<code>notified()</code>，但是還未await)在下次等待的時候，可以直接通過。</p>
+<p>官方手冊給了一個示例：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::sync::Notify;
+use std::sync::Arc;
+
+#[tokio::main]
+async fn main() {
+    let notify = Arc::new(Notify::new());
+    let notify2 = notify.clone();
+
+    // 註冊兩個等候者
+    let notified1 = notify.notified();
+    let notified2 = notify.notified();
+
+    let handle = tokio::spawn(async move {
+        println!(&quot;sending notifications&quot;);
+        notify2.notify_waiters();
+    });
+
+    // 兩個等候者的await都會直接通過
+    notified1.await;
+    notified2.await;
+    println!(&quot;received notifications&quot;);
+}
+</code></pre></pre>
+<h3 id="barrier屏障"><a class="header" href="#barrier屏障">Barrier屏障</a></h3>
+<p>Barrier是一種讓多個併發任務在某種程度上保持進度同步的手段。</p>
+<p>例如，一個任務分兩步，有很多個這種任務併發執行，但每個任務中的第二步都要求所有任務的第一步已經完成。這時可以在第二步之前使用屏障，這樣可以保證所有任務在開始第二步之前的進度是同步的。</p>
+<p>當然，也不一定要等待所有任務的進度都同步，可以設置等待一部分任務的進度同步。也就是說，讓併發任務的進度按批次進行同步。第一批的任務進度都同步後，這一批任務將通過屏障，但是該屏障依然會阻擋下一批任務，直到下一批任務的進度都同步之後才放行。</p>
+<p>官方文檔給了一個示例，不算經典，但有助於理解：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use tokio::sync::Barrier;
+use std::sync::Arc;
+
+let mut handles = Vec::with_capacity(10);
+
+// 參數10表示屏障寬度為10，只等待10個任務達到屏障點就放行這一批任務
+// 也就是說，某時刻已經有9個任務在等待，當第10個任務調用wait的時候，屏障將放行這一批
+let barrier = Arc::new(Barrier::new(10));
+
+for _ in 0..10 {
+    let c = barrier.clone();
+    handles.push(tokio::spawn(async move {
+        println!(&quot;before wait&quot;);
+
+        // 在此設置屏障，保證10個任務都已輸出before wait才繼續向下執行
+        let wait_result = c.wait().await;
+        println!(&quot;after wait&quot;);
+        wait_result
+    }));
+}
+
+let mut num_leaders = 0;
+for handle in handles {
+    let wait_result = handle.await.unwrap();
+    if wait_result.is_leader() {
+        num_leaders += 1;
+    }
+}
+
+assert_eq!(num_leaders, 1);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Barrier調用<code>wait()</code>方法時，返回<code>BarrierWaitResult</code>，該結構有一個<code>is_leader()</code>方法，可以用來判斷某個任務是否是該批次任務中的第一個任務。每一批通過屏障的任務都只有一個leader，其餘非leader任務調用<code>is_leader()</code>都將返回false。</p>
+<p>使用屏障時，一定要保證可以到達屏障點的併發任務數量是屏障寬度的整數倍，否則多出來的任務將一直等待。例如，將屏障的寬度設置為10(即10個任務一批)，但是有15個併發任務，多出來的5個任務無法湊成完整的一批，這5個任務將一直等待。</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
+use tokio::sync::Barrier;
+use tokio::{ self, runtime::Runtime, time::{self, Duration} };
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let barrier = Arc::new(Barrier::new(10));
+
+        for i in 1..=15 {
+            let b = barrier.clone();
+            tokio::spawn(async move {
+                println!(&quot;data before: {}&quot;, i);
+
+                b.wait().await; // 15個任務中，多出5個任務將一直在此等待
+                time::sleep(Duration::from_millis(10)).await;
+                println!(&quot;data after: {}&quot;, i);
+            });
+        }
+        time::sleep(Duration::from_secs(5)).await;
+    });
+}
+</code></pre></pre>
+<h3 id="semaphore信號量"><a class="header" href="#semaphore信號量">Semaphore信號量</a></h3>
+<p>信號量可以保證在某一時刻最多運行指定數量的併發任務。</p>
+<p>使用信號量時，需在初始化時指定信號燈(tokio中的SemaphorePermit)的數量，每當任務要執行時，將從中取走一個信號燈，當任務完成時(信號燈被drop)會歸還信號燈。當某個任務要執行時，如果此時信號燈數量為0，則該任務將等待，直到有信號燈被歸還。因此，信號量通常用來提供類似於限量的功能。</p>
+<p>例如，信號燈數量為1，表示所有併發任務必須串行運行，這種模式和互斥鎖是類似的。再例如，信號燈數量設置為2，表示最多隻有兩個任務可以併發執行，如果有第三個任務，則必須等前兩個任務中的某一個先完成。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use std::sync::Arc;
+use tokio::{ self, runtime::Runtime, sync::Semaphore, time::{self, Duration}};
+
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        // 只有3個信號燈的信號量
+        let semaphore = Arc::new(Semaphore::new(3));
+
+        // 5個併發任務，每個任務執行前都先獲取信號燈
+        // 因此，同一時刻最多隻有3個任務進行併發
+        for i in 1..=5 {
+            let semaphore = semaphore.clone();
+            tokio::spawn(async move {
+                let _permit = semaphore.acquire().await.unwrap();
+                println!(&quot;{}, {}&quot;, i, now());
+                time::sleep(Duration::from_secs(1)).await;
+            });
+        }
+
+        time::sleep(Duration::from_secs(3)).await;
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>3, 2021-11-17 17:06:38
+1, 2021-11-17 17:06:38
+2, 2021-11-17 17:06:38
+4, 2021-11-17 17:06:39
+5, 2021-11-17 17:06:39
+</code></pre>
+<p><code>tokio::sync::Semaphore</code>提供了以下一些方法:</p>
+<ul>
+<li>close(): 關閉信號量，關閉信號量時，將喚醒所有的信號燈等待者</li>
+<li>is_closed(): 檢查信號量是否已經被關閉</li>
+<li>acquire(): 獲取一個信號燈，如果信號量已經被關閉，則返回錯誤AcquireError</li>
+<li>acquire_many(): 獲取指定數量的信號燈，如果信號燈數量不夠則等待，如果信號量已經被關閉，則返回AcquireError</li>
+<li>add_permits(): 向信號量中額外添加N個信號燈</li>
+<li>available_permits(): 當前信號量中剩餘的信號燈數量</li>
+<li>try_acquire(): 不等待地嘗試獲取一個信號燈，如果信號量已經關閉，則返回TryAcquireError::Closed，如果目前信號燈數量為0，則返回TryAcquireError::NoPermits</li>
+<li>try_acquire_many(): 嘗試獲取指定數量的信號燈</li>
+<li>acquire_owned(): 獲取一個信號燈並消費掉信號量</li>
+<li>acquire_many_owned(): 獲取指定數量的信號燈並消費掉信號量</li>
+<li>try_acquire_owned(): 嘗試獲取信號燈並消費掉信號量</li>
+<li>try_acquire_many_owned(): 嘗試獲取指定數量的信號燈並消費掉信號量</li>
+</ul>
+<p>對於獲取到的信號燈SemaphorePermit，有一個<code>forget()</code>方法，該方法可以將信號燈不歸還給信號量，因此信號量中的信號燈將永久性地減少(當然，可使用<code>add_permits()</code>添加額外的信號燈)。</p>
+<p>信號量的限量功能，也可以通過<code>sync::mpsc</code>通道來實現。大致邏輯為：設置通道寬度為允許的最大併發任務數量，並先填滿通道，當執行一個任務時，先從通道取走一個消息，再執行任務，每次執行完任務後都重新向通道中回補一個消息。</p>
+</main>
+<nav class="nav-wrapper" aria-label="Page navigation">
+
+<a rel="prev" href="05_task_communication.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="../ch101/tracing.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+<div style="clear: both"></div>
+</nav>
+</div>
+</div>
+<nav class="nav-wide-wrapper" aria-label="Page navigation">
+<a rel="prev" href="05_task_communication.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="../ch101/tracing.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+</nav>
+</div>
+
+<script type="text/javascript">
+            var socket = new WebSocket("ws://0.0.0.0:8880/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+<script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+<script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+<script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+<script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" src="../mytheme/sidebar.js"></script>
+</body>
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch100/06_task_state_sync.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:55 GMT -->
+</html>

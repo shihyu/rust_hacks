@@ -1,0 +1,637 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch100/05_task_communication.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:55 GMT -->
+<head>
+
+<meta charset="UTF-8">
+<title>tokio task的通信和同步(2): 通信 - Rust入門祕籍</title>
+
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta name="description" content="Rust入門">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="../favicon.svg">
+<link rel="shortcut icon" href="../favicon.png">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/general.css">
+<link rel="stylesheet" href="../css/chrome.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+
+<link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+
+<link rel="stylesheet" href="../highlight.css">
+<link rel="stylesheet" href="../tomorrow-night.css">
+<link rel="stylesheet" href="../ayu-highlight.css">
+
+<link rel="stylesheet" href="../mytheme/fonts/cascadia-font.css">
+<link rel="stylesheet" href="../mytheme/style.css">
+</head>
+<body>
+
+<script type="text/javascript">
+            var path_to_root = "../index.html";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+<script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+<script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+<script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+<nav id="sidebar" class="sidebar" aria-label="Table of contents">
+<div class="sidebar-scrollbox">
+<ol class="chapter"><li class="chapter-item expanded affix "><a href="../about.html">說明</a></li><li class="chapter-item expanded "><a href="../ch1/00.html"><strong aria-hidden="true">1.</strong> Rust入門第一課</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch1/01_expression.html"><strong aria-hidden="true">1.1.</strong> Rust是基於表達式的語言</a></li></ol></li><li class="chapter-item expanded "><a href="../ch2/00.html"><strong aria-hidden="true">2.</strong> 變量聲明和函數定義</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch2/01_variable.html"><strong aria-hidden="true">2.1.</strong> 理解Rust中的變量賦值</a></li><li class="chapter-item expanded "><a href="../ch2/02_function.html"><strong aria-hidden="true">2.2.</strong> 定義函數</a></li></ol></li><li class="chapter-item expanded "><a href="../ch3/00.html"><strong aria-hidden="true">3.</strong> Rust原始數據類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch3/01_number.html"><strong aria-hidden="true">3.1.</strong> 數值類型</a></li><li class="chapter-item expanded "><a href="../ch3/02_bool.html"><strong aria-hidden="true">3.2.</strong> 布爾類型</a></li><li class="chapter-item expanded "><a href="../ch3/03_char.html"><strong aria-hidden="true">3.3.</strong> char類型</a></li><li class="chapter-item expanded "><a href="../ch3/04_str_string.html"><strong aria-hidden="true">3.4.</strong> 字符串：str和String</a></li><li class="chapter-item expanded "><a href="../ch3/05_tuple_unit.html"><strong aria-hidden="true">3.5.</strong> tuple類型</a></li><li class="chapter-item expanded "><a href="../ch3/06_array.html"><strong aria-hidden="true">3.6.</strong> Array類型</a></li><li class="chapter-item expanded "><a href="../ch3/07_reference_type.html"><strong aria-hidden="true">3.7.</strong> Rust中的引用類型</a></li><li class="chapter-item expanded "><a href="../ch3/08_slice.html"><strong aria-hidden="true">3.8.</strong> Slice類型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch4/00.html"><strong aria-hidden="true">4.</strong> Rust操作符和流程控制語句</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch4/01_operators.html"><strong aria-hidden="true">4.1.</strong> Rust操作符</a></li><li class="chapter-item expanded "><a href="../ch4/02_range_expression.html"><strong aria-hidden="true">4.2.</strong> 範圍表達式</a></li><li class="chapter-item expanded "><a href="../ch4/03_flow_control.html"><strong aria-hidden="true">4.3.</strong> 流程控制結構</a></li></ol></li><li class="chapter-item expanded "><a href="../ch5/00.html"><strong aria-hidden="true">5.</strong> 理解Rust內存管理</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch5/01_heap_stack.html"><strong aria-hidden="true">5.1.</strong> 堆空間和棧空間</a></li><li class="chapter-item expanded "><a href="../ch5/02_rust_mem.html"><strong aria-hidden="true">5.2.</strong> Rust如何使用堆和棧</a></li><li class="chapter-item expanded "><a href="../ch5/03_rust_place_value.html"><strong aria-hidden="true">5.3.</strong> 通過位置和值理解內存模型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch6/00.html"><strong aria-hidden="true">6.</strong> 理解Rust的所有權和借用規則</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch6/01_scope.html"><strong aria-hidden="true">6.1.</strong> 理解Rust的變量作用域</a></li><li class="chapter-item expanded "><a href="../ch6/02_move_copy.html"><strong aria-hidden="true">6.2.</strong> Rust所有權規則概述</a></li><li class="chapter-item expanded "><a href="../ch6/03_ref_ownership_borrow.html"><strong aria-hidden="true">6.3.</strong> 引用和所有權借用</a></li><li class="chapter-item expanded "><a href="../ch6/04_understand_mutable_ref.html"><strong aria-hidden="true">6.4.</strong> 理解可變引用的排他性</a></li><li class="chapter-item expanded "><a href="../ch6/05_re_understand_move.html"><strong aria-hidden="true">6.5.</strong> 再次理解Move</a></li><li class="chapter-item expanded "><a href="../ch6/06_ref_copy_clone.html"><strong aria-hidden="true">6.6.</strong> 引用類型的Copy和Clone</a></li></ol></li><li class="chapter-item expanded "><a href="../ch7/00.html"><strong aria-hidden="true">7.</strong> Vec類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch7/01_vec_basic.html"><strong aria-hidden="true">7.1.</strong> Vec的基本使用</a></li><li class="chapter-item expanded "><a href="../ch7/02_vec_capacity_reallocation.html"><strong aria-hidden="true">7.2.</strong> Vec的內存佈局</a></li><li class="chapter-item expanded "><a href="../ch7/03_vec_method.html"><strong aria-hidden="true">7.3.</strong> vec的常用方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch8/00.html"><strong aria-hidden="true">8.</strong> Struct類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch8/01_struct_basic.html"><strong aria-hidden="true">8.1.</strong> Struct的基本使用</a></li><li class="chapter-item expanded "><a href="../ch8/02_output_struct.html"><strong aria-hidden="true">8.2.</strong> 調試輸出Struct</a></li><li class="chapter-item expanded "><a href="../ch8/03_struct_methods.html"><strong aria-hidden="true">8.3.</strong> 定義Struct的方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch9/00.html"><strong aria-hidden="true">9.</strong> Enum類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch9/01_enum_basis.html"><strong aria-hidden="true">9.1.</strong> Enum的基本使用</a></li><li class="chapter-item expanded "><a href="../ch9/02_more_about_enum.html"><strong aria-hidden="true">9.2.</strong> 定義Enum的完整語法</a></li><li class="chapter-item expanded "><a href="../ch9/03_enum_methods.html"><strong aria-hidden="true">9.3.</strong> 為枚舉類型定義方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch10/00.html"><strong aria-hidden="true">10.</strong> 模式匹配</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch10/01_pattern_match_basis.html"><strong aria-hidden="true">10.1.</strong> 模式匹配的基本使用</a></li><li class="chapter-item expanded "><a href="../ch10/02_pattern_details.html"><strong aria-hidden="true">10.2.</strong> 模式的完整語法</a></li><li class="chapter-item expanded "><a href="../ch10/03_deconstruction.html"><strong aria-hidden="true">10.3.</strong> 模式解構賦值</a></li></ol></li><li class="chapter-item expanded "><a href="../ch11/00.html"><strong aria-hidden="true">11.</strong> Trait和Trait Object</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch11/01_trait_basis.html"><strong aria-hidden="true">11.1.</strong> Trait的基本用法</a></li><li class="chapter-item expanded "><a href="../ch11/02_more_about_trait.html"><strong aria-hidden="true">11.2.</strong> 再多理解一點Trait</a></li><li class="chapter-item expanded "><a href="../ch11/03_trait_inherite.html"><strong aria-hidden="true">11.3.</strong> Trait繼承</a></li><li class="chapter-item expanded "><a href="../ch11/04_trait_object.html"><strong aria-hidden="true">11.4.</strong> Trait Object</a></li></ol></li><li class="chapter-item expanded "><a href="../ch12/00.html"><strong aria-hidden="true">12.</strong> 泛型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch12/01_generic_basis.html"><strong aria-hidden="true">12.1.</strong> 泛型的基本使用</a></li><li class="chapter-item expanded "><a href="../ch12/02_where_generic.html"><strong aria-hidden="true">12.2.</strong> 使用泛型的位置</a></li><li class="chapter-item expanded "><a href="../ch12/03_trait_obj_generic.html"><strong aria-hidden="true">12.3.</strong> Trait對象和泛型</a></li></ol></li><li class="chapter-item expanded "><a href="00.html"><strong aria-hidden="true">13.</strong> Rust異步編程和tokio框架</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01_understand_tokio_runtime.html"><strong aria-hidden="true">13.1.</strong> 理解tokio的核心(1): runtime</a></li><li class="chapter-item expanded "><a href="02_understand_tokio_task.html"><strong aria-hidden="true">13.2.</strong> 理解tokio的核心(2): task</a></li><li class="chapter-item expanded "><a href="03_use_tokio_time.html"><strong aria-hidden="true">13.3.</strong> 使用tokio Timer</a></li><li class="chapter-item expanded "><a href="04_task_communication_and_sync.html"><strong aria-hidden="true">13.4.</strong> tokio task的通信和同步(1): 簡介</a></li><li class="chapter-item expanded "><a href="05_task_communication.html" class="active"><strong aria-hidden="true">13.5.</strong> tokio task的通信和同步(2): 通信</a></li><li class="chapter-item expanded "><a href="06_task_state_sync.html"><strong aria-hidden="true">13.6.</strong> tokio task的通信和同步(3): 同步</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.7.</strong> 異步IO/fs/Stream/Frame沒寫完整，完整後再發</div></li></ol></li><li class="chapter-item expanded "><a href="../ch101/tracing.html"><strong aria-hidden="true">14.</strong> Rust日誌記錄</a></li></ol>
+</div>
+<div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+</nav>
+<div id="page-wrapper" class="page-wrapper">
+<div class="page">
+<div id="menu-bar-hover-placeholder"></div>
+<div id="menu-bar" class="menu-bar sticky bordered">
+<div class="left-buttons">
+<button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+<i class="fa fa-bars"></i>
+</button>
+<button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+<i class="fa fa-paint-brush"></i>
+</button>
+<ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+<li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+<li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+<li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+<li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+<li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+</ul>
+<button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+<i class="fa fa-search"></i>
+</button>
+</div>
+<h1 class="menu-title">Rust入門祕籍</h1>
+<h1 class="menu-title menu-blog">
+<a href="https://www.junmajinlong.com/">博客</a>
+</h1>
+<div class="right-buttons">
+<a href="../print.html" title="Print this book" aria-label="Print this book">
+<i id="print-button" class="fa fa-print"></i>
+</a>
+</div>
+</div>
+<div id="search-wrapper" class="hidden">
+<form id="searchbar-outer" class="searchbar-outer">
+<input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+</form>
+<div id="searchresults-outer" class="searchresults-outer hidden">
+<div id="searchresults-header" class="searchresults-header"></div>
+<ul id="searchresults">
+</ul>
+</div>
+</div>
+
+<script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+<div id="content" class="content">
+<main>
+<div class="sidetoc"><nav class="pagetoc"></nav></div>
+<h2 id="tokio-task的通信和同步2-通信"><a class="header" href="#tokio-task的通信和同步2-通信">tokio task的通信和同步(2): 通信</a></h2>
+<p>tokio使用通道在task之間進行通信，有四種類型通道：oneshot、mpsc、broadcast和watch。</p>
+<h3 id="oneshot通道"><a class="header" href="#oneshot通道">oneshot通道</a></h3>
+<p>oneshot通道的特性是：單Sender、單Receiver以及單消息，簡單來說就是一次性的通道。</p>
+<p>oneshot通道的創建方式是使用<code>oneshot::channel()</code>方法：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn channel&lt;T&gt;() -&gt; (Sender&lt;T&gt;, Receiver&lt;T&gt;)
+<span class="boring">}
+</span></code></pre></pre>
+<p>它返回該通道的寫端sender和讀端receiver，其中泛型T表示的是讀寫兩端所傳遞的消息類型。</p>
+<p>例如，創建一個可發送i32數據的一次性通道：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let (tx, rx) = oneshot::channel::&lt;i32&gt;();
+<span class="boring">}
+</span></code></pre></pre>
+<p>返回的結果中，tx是發送者(sender)、rx是接收者(receiver)。</p>
+<p>多數時候不需要去聲明通道的類型，編譯器可以根據發送數據時的類型自動推斷出類型。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let (tx, rx) = oneshot::channel();
+<span class="boring">}
+</span></code></pre></pre>
+<h4 id="sender"><a class="header" href="#sender">Sender</a></h4>
+<p>Sender通過<code>send()</code>方法發送數據，因為oneshot通道只能發送一次數據，所以<code>send()</code>發送數據的時候，tx直接被消費掉。Sender並不一定總能成功發送消息，比如，Sender發送消息之前，Receiver端就已經關閉了讀端。因此<code>send()</code>返回Result結果：如果發送成功，則返回<code>Ok(())</code>，如果發送失敗，則返回<code>Err(T)</code>。</p>
+<p>因此，發送數據的時候，通常會做如下檢測：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 或 if tx.send(33).is_err() {}
+// 或直接忽略錯誤 let _ = tx.send();
+if let Err(_) = tx.send(33) {
+  println!(&quot;receiver closed&quot;);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>另外需注意，<code>send()</code>是非異步但卻不阻塞的，它總是立即返回，如果能發送數據，則發送數據，如果不能發送數據，就返回錯誤，它不會等待Receiver啟動讀取操作。也因此，<code>send()</code>可以應用在同步代碼中，也可以應用在異步代碼中。</p>
+<p>Sender可以通過<code>is_closed()</code>方法來判斷Receiver端是否已經關閉。</p>
+<p>Sender可以通過<code>close()</code>方法來等待Receiver端關閉。它可以結合<code>select!</code>宏使用：其中一個分支計算要發送的數據，另一個分支為<code>closed()</code>等待分支，如果先計算完成，則發送計算結果，而如果是先等到了對端closed的異步任務完成，則無需再計算浪費CPU去計算結果。例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>tokio::spawn(async move {
+  tokio::select! {
+    _ = tx.closed() =&gt; {
+      // 先等待到了對端關閉，不做任何事，select!會自動取消其它分支的任務
+    }
+    value = compute() =&gt; {
+      // 先計算得到結果，則發送給對端
+      // 但有可能剛計算完成，尚未發送時，對端剛好關閉，因此可能發送失敗
+      // 此處丟棄發送失敗的錯誤
+      let _ = tx.send(value);
+    }
+  }
+});
+<span class="boring">}
+</span></code></pre></pre>
+<h4 id="receiver"><a class="header" href="#receiver">Receiver</a></h4>
+<p>Receiver沒有<code>recv()</code>方法，rx本身實現了Future Trait，它執行時對應的異步任務就是接收數據，因此只需await即可用來接收數據。</p>
+<p>但是，接收數據並不一定會接收成功。例如，Sender端尚未發送任何數據就已經關閉了(被drop)，此時Receiver端會接收到<code>error::RecvError</code>錯誤。因此，接收數據的時候通常也會進行判斷：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>match rx.await {
+  Ok(v) =&gt; println!(&quot;got = {:?}&quot;, v),
+  Err(_) =&gt; println!(&quot;the sender dropped&quot;),
+  // Err(e: RecvError) =&gt; xxx,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>既然通過<code>rx.await</code>來接收數據，那麼已經隱含了一個信息，異步任務中接收數據時會進行等待。</p>
+<p>Receiver端可以通過<code>close()</code>方法關閉自己這一端，當然也可以直接drop來關閉。關閉操作是冪等的，即，如果關閉的是已經關閉的Recv，則不產生任何影響。</p>
+<p>關閉Recv端之後，可以保證Sender端無法再發送消息。但需要注意，有可能Recv端關閉完成之前，Sender端正好在這時發送了一個數據過來。因此，在關閉Recv端之後，儘可能地再調用一下<code>try_recv()</code>方法嘗試接收一次數據。</p>
+<p><code>try_recv()</code>方法返回三種可能值：</p>
+<ul>
+<li><code>Ok(T)</code>: 表示成功接收到通道中的數據</li>
+<li><code>Err(TryRecvError::Empty)</code>: 表示通道為空</li>
+<li><code>Err(TryRecvError::Closed)</code>: 表示通道為空，且Sender端已關閉，即Sender未發送任何數據就關閉了</li>
+</ul>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let (tx, mut rx) = oneshot::channel::&lt;()&gt;();
+
+drop(tx);
+
+match rx.try_recv() {
+    // The channel will never receive a value.
+    Err(TryRecvError::Closed) =&gt; {}
+    _ =&gt; unreachable!(),
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h4 id="使用示例"><a class="header" href="#使用示例">使用示例</a></h4>
+<p>一個完整但簡單的示例：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::{self, runtime::Runtime, sync};
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let (tx, rx) = sync::oneshot::channel();
+
+        tokio::spawn(async move {
+            if tx.send(33).is_err() {
+                println!(&quot;receiver dropped&quot;);
+            }
+        });
+
+        match rx.await {
+            Ok(value) =&gt; println!(&quot;received: {:?}&quot;, value),
+            Err(_) =&gt; println!(&quot;sender dropped&quot;),
+        };
+    });
+}
+</code></pre></pre>
+<p>另一個比較常見的使用場景是結合<code>select!</code>宏，此時應在recv前面加上<code>&amp;mut</code>。例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let interval = tokio::interval(tokio::time::Duration::from_millis(100));
+
+// 注意mut
+let (tx, mut rx) = oneshot::channel();
+loop {
+    // 注意，select!中無需await，因為select!會自動輪詢推進每一個分支的任務進度
+    tokio::select! {
+        _ = interval.tick() =&gt; println!(&quot;Another 100ms&quot;),
+        msg = &amp;mut recv =&gt; {
+            println!(&quot;Got message: {}&quot;, msg.unwrap());
+            break;
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3 id="mpsc通道"><a class="header" href="#mpsc通道">mpsc通道</a></h3>
+<p>mpsc通道的特性是可以有多個發送者發送多個消息，且只有一個接收者。mpsc通道是使用最頻繁的通道類型。</p>
+<p>mpsc通道分為兩種：</p>
+<ul>
+<li>bounded channel: 有界通道，通道有容量限制，即通道中最多可以存放指定數量(至少為1)的消息，通過<code>mpsc::channel()</code>創建</li>
+<li>unbounded channel: 無界通道，通道中可以無限存放消息，直到內存耗盡，通過<code>mpsc::unbounded_channel()</code>創建</li>
+</ul>
+<h4 id="有界通道"><a class="header" href="#有界通道">有界通道</a></h4>
+<p>通過<code>mpsc::channel()</code>創建有界通道，需傳遞一個大於1的usize值作為其參數。</p>
+<p>例如，創建一個最多可以存放100個消息的有界通道。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// tx是Sender端，rx是Receiver端
+// 接收端接收數據時需修改狀態，因此聲明為mut
+let (tx, mut rx) = mpsc::channel(100);
+<span class="boring">}
+</span></code></pre></pre>
+<p>mpsc通道只能有一個Receiver端，但可以<code>tx.clone()</code>得到多個Sender端，clone得到的Sender都可以使用<code>send()</code>方法向該通道發送消息。</p>
+<p>發送消息時，如果通道已滿，發送消息的任務將等待直到通道中有空閒的位置。</p>
+<p>發送消息時，如果Receiver端已經關閉，則發送消息的操作將返回<code>SendError</code>。</p>
+<p>如果所有的Sender端都已經關閉，則Receiver端接收消息的方法<code>recv()</code>將返回None。</p>
+<p>一個簡單的示例：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::{ self, runtime::Runtime, sync };
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let (tx, mut rx) = sync::mpsc::channel::&lt;i32&gt;(10);
+
+        tokio::spawn(async move {
+            for i in 1..=10 {
+                // if let Err(_) = tx.send(i).await {}
+                if tx.send(i).await.is_err() {
+                    println!(&quot;receiver closed&quot;);
+                    return;
+                }
+            }
+        });
+
+        while let Some(i) = rx.recv().await {
+            println!(&quot;received: {}&quot;, i);
+        }
+    });
+}
+</code></pre></pre>
+<p>輸出的結果：</p>
+<pre><code>received: 1
+received: 2
+received: 3
+received: 4
+received: 5
+received: 6
+received: 7
+received: 8
+received: 9
+received: 10
+</code></pre>
+<p>上面的示例中，先生成了一個異步任務，該異步任務向通道中發送10個數據，Receiver端則在while循環中不斷從通道中取數據。</p>
+<p>將上面的示例改一下，生成10個異步任務分別發送數據：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::{ self, runtime::Runtime, sync };
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let (tx, mut rx) = sync::mpsc::channel::&lt;i32&gt;(10);
+
+        for i in 1..=10 {
+            let tx = tx.clone();
+            tokio::spawn(async move {
+                if tx.send(i).await.is_err() {
+                    println!(&quot;receiver closed&quot;);
+                }
+            });
+        }
+        drop(tx);
+
+        while let Some(i) = rx.recv().await {
+            println!(&quot;received: {}&quot;, i);
+        }
+    });
+}
+</code></pre></pre>
+<p>輸出的結果：</p>
+<pre><code>received: 2
+received: 3
+received: 1
+received: 4
+received: 6
+received: 5
+received: 10
+received: 7
+received: 8
+received: 9
+</code></pre>
+<p>10個異步任務發送消息的順序是未知的，因此接收到的消息無法保證順序。</p>
+<p>另外注意上面示例中的<code>drop(tx)</code>，因為生成的10個異步任務中都擁有clone後的Sender，clone出的Sender在每個異步任務完成時自動被drop，但原始任務中還有一個Sender，如果不關閉這個Sender，<code>rx.recv()</code>將不會返回None，而是一直等待。</p>
+<p>如果通道已滿，Sender通過<code>send()</code>發送消息時將等待。例如下面的示例中，通道容量為5，但要發送7個數據，前5個數據會立即發送，發送第6個消息的時候將等待，直到1秒後Receiver開始從通道中消費數據。</p>
+<pre><pre class="playground"><code class="language-rust">use chrono::Local;
+use tokio::{self, sync, runtime::Runtime, time::{self, Duration}};
+
+fn now() -&gt; String {
+    Local::now().format(&quot;%F %T&quot;).to_string()
+}
+
+fn main() {
+    let rt = Runtime::new().unwrap();
+    rt.block_on(async {
+        let (tx, mut rx) = sync::mpsc::channel::&lt;i32&gt;(5);
+
+        tokio::spawn(async move {
+            for i in 1..=7 {
+              if tx.send(i).await.is_err() {
+                println!(&quot;receiver closed&quot;);
+                return;
+              }
+              println!(&quot;sended: {}, {}&quot;, i, now());
+            }
+        });
+
+        time::sleep(Duration::from_secs(1)).await;
+        while let Some(i) = rx.recv().await {
+            println!(&quot;received: {}&quot;, i);
+        }
+    });
+}
+</code></pre></pre>
+<p>輸出結果：</p>
+<pre><code>sended: 1, 2021-11-12 18:25:28
+sended: 2, 2021-11-12 18:25:28
+sended: 3, 2021-11-12 18:25:28
+sended: 4, 2021-11-12 18:25:28
+sended: 5, 2021-11-12 18:25:28
+received: 1
+received: 2
+received: 3
+received: 4
+received: 5
+sended: 6, 2021-11-12 18:25:29
+sended: 7, 2021-11-12 18:25:29
+received: 6
+sended: 8, 2021-11-12 18:25:29
+received: 7
+received: 8
+received: 9
+sended: 9, 2021-11-12 18:25:29
+sended: 10, 2021-11-12 18:25:29
+received: 10
+</code></pre>
+<p>Sender端和Receiver端有一些額外的方法需要解釋一下它們的作用。</p>
+<p>對於Sender端：</p>
+<ul>
+<li>capacity(): 獲取當前通道的剩餘容量(注意，不是初始化容量)</li>
+<li>closed(): 等待Receiver端關閉，當Receiver端關閉後該等待任務會立即完成</li>
+<li>is_closed(): 判斷Receiver端是否已經關閉</li>
+<li>send(): 向通道中發送消息，通道已滿時會等待通道中的空閒位置，如果對端已關閉，則返回錯誤</li>
+<li>send_timeout(): 向通道中發送消息，通道已滿時只等待指定的時長</li>
+<li>try_send(): 向通道中發送消息，但不等待，如果發送不成功，則返回錯誤</li>
+<li>reserve(): 等待並申請一個通道中的空閒位置，返回一個Permit，申請的空閒位置被佔位，且該位置只留給該Permit實例，之後該Permit可以直接向通道中發送消息，並釋放其佔位的位置。申請成功時，通道空閒容量減1，釋放位置時，通道容量會加1</li>
+<li>try_reserve(): 嘗試申請一個空閒位置且不等待，如果無法申請，則返回錯誤</li>
+<li>reserve_owned(): 與reserve()類似，它返回OwnedPermit，但會Move Sender</li>
+<li>try_reserve_owned(): reserve_owned()的不等待版本，嘗試申請空閒位置失敗時會立即返回錯誤</li>
+<li>blocking_send(): Sender可以在同步代碼環境中使用該方法向異步環境發送消息</li>
+</ul>
+<p>對於Receiver端：</p>
+<ul>
+<li>close(): 關閉Receiver端</li>
+<li>recv(): 接收消息，如果通道已空，則等待，如果對端已全部關閉，則返回None</li>
+<li>try_recv(): 嘗試接收消息，不等待，如果無法接收消息(即通道為空或對端已關閉)，則返回錯誤</li>
+<li>blocking_recv(): Receiver可以在同步代碼環境中使用該方法接收來自異步環境的消息</li>
+</ul>
+<p>注意，在這些方法中，<code>try_xxx()</code>方法都是立即返回不等待的(可以認為是同步代碼)，因此調用它們後無需await，只有調用那些可能需要等待的方法，調用後才需要await。例如<code>rx.recv().await</code>和<code>rx.try_recv()</code>。</p>
+<p>下面是一些稍詳細的用法說明和示例。</p>
+<p>Sender端可通過<code>send_timeout()</code>來設置一個等待通道空閒位置的超時時間，它和<code>send()</code>返回值一樣，此外還添加一種超時錯誤：超時後仍然沒有發送成功時將返回錯誤。至於返回的是什麼錯誤，對於發送端來說不重要，重要的是發送的消息是否成功。因此，對於Sender端的條件判斷，通常也僅僅只是檢測<code>is_err()</code>：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>if tx.send_timeout(33, Duration::from_secs(1)).await.is_err() {
+  println!(&quot;receiver closed or timeout&quot;);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p><strong>需要特別注意的是，Receiver端調用close()方法關閉通道後，只是半關閉狀態，Receiver端仍然可以繼續讀取可能已經緩衝在通道中的消息，close()只能保證Sender端無法再發送普通的消息，但Permit或OwnedPermit仍然可以向通道發送消息。只有通道已空且所有Sender端(包括Permit和OwnedPermit)都已經關閉的情況下，recv()才會返回None，此時代表通道完全關閉</strong>。</p>
+<p>Receiver的<code>try_recv()</code>方法在無法立即接收消息時會立即返回錯誤。返回的錯誤分為兩種:</p>
+<ul>
+<li>TryRecvError::Empty錯誤: 表示通道已空，但Sender端尚未全部關閉</li>
+<li>TryRecvError::Disconnected錯誤: 表示通道已空，且Sender端(包括Permit和OwnedPermit)已經全部關閉</li>
+</ul>
+<p>關於<code>reserve()</code>和<code>reserve_owned()</code>，看官方示例即可輕鬆理解：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::sync::mpsc;
+
+#[tokio::main]
+async fn main() {
+    // 創建容量為1的通道
+    let (tx, mut rx) = mpsc::channel(1);
+    // 申請並佔有唯一的空閒位置
+    let permit = tx.reserve().await.unwrap();
+    // 唯一的位置已被permit佔有，tx.send()無法發送消息
+    assert!(tx.try_send(123).is_err());
+    // Permit可以通過send()方法向它佔有的那個位置發送消息
+    permit.send(456);
+    // Receiver端接收到消息
+    assert_eq!(rx.recv().await.unwrap(), 456);
+
+
+    // 創建容量為1的通道
+    let (tx, mut rx) = mpsc::channel(1);
+    // tx.reserve_owned()會消費掉tx
+    let permit = tx.reserve_owned().await.unwrap();
+    // 通過permit.send()發送消息，它又返回一個Sender
+    let tx = permit.send(456);
+    assert_eq!(rx.recv().await.unwrap(), 456);
+    //可以繼續使用返回的Sender發送消息
+    tx.send(789).await.unwrap();
+}
+</code></pre></pre>
+<h4 id="無界通道"><a class="header" href="#無界通道">無界通道</a></h4>
+<p>理解了mpsc的有界通道之後，再理解無界通道會非常輕鬆。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let (tx, mut rx) = mpsc::unbounded_channel();
+<span class="boring">}
+</span></code></pre></pre>
+<p>對於無界通道，它的通道中可以緩衝無限數量的消息，直到內存耗盡。這意味著，Sender端可以無需等待地不斷向通道中發送消息，這也意味著無界通道的Sender既可以在同步環境中也可以在異步環境中向通道中發送消息。只有當Receiver端已經關閉，Sender端的發送才會返回錯誤。</p>
+<p>使用無界通道的關鍵，在於必須要保證不會無限度地緩衝消息而導致內存耗盡。例如，讓Receiver端消費消息的速度儘量快，或者採用一些複雜的限速機制讓嚴重超前的Sender端等一等。</p>
+<h3 id="broadcast通道"><a class="header" href="#broadcast通道">broadcast通道</a></h3>
+<p>broadcast通道是一種廣播通道，可以有多個Sender端以及多個Receiver端，可以發送多個數據，且任何一個Sender發送的每一個數據都能被所有的Receiver端看到。</p>
+<p>使用<code>mpsc::broadcast()</code>創建廣播通道，要求指定一個通道容量作為參數。它返回Sender和Receiver。Sender可以克隆得到多個Sender，可以調用Sender的<code>subscribe()</code>方法來創建新的Receiver。</p>
+<p>例如，下面是官方文檔提供的一個示例：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::sync::broadcast;
+
+#[tokio::main]
+async fn main() {
+    // 最多存放16個消息
+    // tx是Sender，rx1是Receiver
+    let (tx, mut rx1) = broadcast::channel(16);
+
+    // Sender的subscribe()方法可生成新的Receiver
+    let mut rx2 = tx.subscribe();
+
+    tokio::spawn(async move {
+        assert_eq!(rx1.recv().await.unwrap(), 10);
+        assert_eq!(rx1.recv().await.unwrap(), 20);
+    });
+
+    tokio::spawn(async move {
+        assert_eq!(rx2.recv().await.unwrap(), 10);
+        assert_eq!(rx2.recv().await.unwrap(), 20);
+    });
+
+    tx.send(10).unwrap();
+    tx.send(20).unwrap();
+}
+</code></pre></pre>
+<p>Sender端通過<code>send()</code>發送消息的時候，如果所有的Receiver端都已關閉，則<code>send()</code>方法返回錯誤。</p>
+<p>Receiver端可通過<code>recv()</code>去接收消息，如果所有的Sender端都已經關閉，則該方法返回<code>RecvError::Closed</code>錯誤。該方法還可能返回<code>RecvError::Lagged</code>錯誤，該錯誤表示接收端已經落後於發送端。</p>
+<p>雖然broadcast通道也指定容量，但是通道已滿的情況下還可以繼續寫入新數據而不會等待(因此上面示例中的<code>send()</code>無需await)，此時通道中最舊的(頭部的)數據將被剔除，並且新數據添加在尾部。就像是FIFO隊列一樣。出現這種情況時，就意味著接收端已經落後於發送端。</p>
+<p>當接收端已經開始落後於發送端時，下一次的<code>recv()</code>操作將直接返回<code>RecvError::Lagged</code>錯誤。如果緊跟著再執行<code>recv()</code>且落後現象未再次發生，那麼這次的<code>recv()</code>將取得隊列頭部的消息。</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::sync::broadcast;
+
+#[tokio::main]
+async fn main() {
+    // 通道容量2
+    let (tx, mut rx) = broadcast::channel(2);
+
+    // 寫入3個數據，將出現接收端落後於發送端的情況，
+    // 此時，第一個數據(10)將被剔除，剔除後，20將位於隊列的頭部
+    tx.send(10).unwrap();
+    tx.send(20).unwrap();
+    tx.send(30).unwrap();
+
+    // 落後於發送端之後的第一次recv()操作，返回RecvError::Lagged錯誤
+    assert!(rx.recv().await.is_err());
+
+    // 之後可正常獲取通道中的數據
+    assert_eq!(20, rx.recv().await.unwrap());
+    assert_eq!(30, rx.recv().await.unwrap());
+}
+</code></pre></pre>
+<p>Receiver也可以使用<code>try_recv()</code>方法去無等待地接收消息，如果Sender都已關閉，則返回<code>TryRecvError::Closed</code>錯誤，如果接收端已落後，則返回<code>TryRecvError::Lagged</code>錯誤，如果通道為空，則返回<code>TryRecvError::Empty</code>錯誤。</p>
+<p>另外，<code>tokio::broadcast</code>的任何一個Receiver都可以看到每一次發送的消息，且它們都可以去<code>recv()</code>同一個消息，<code>tokio::broadcast</code>對此的處理方式是消息克隆：每一個Receiver調用<code>recv()</code>去接收一個消息的時候，都會克隆通道中的該消息一次，直到所有存活的Receiver都克隆了該消息，該消息才會從通道中被移除，進而釋放一個通道空閒位置。</p>
+<p>這可能會導致一種現象：某個ReceiverA已經接收了通道中的第10個消息，但另一個ReceiverB可能尚未接收第一個消息，由於第一個消息還未被全部接收者所克隆，它仍會保留在通道中並佔用通道的位置，假如該通道的最大容量為10，此時Sender再發送一個消息，那麼第一個數據將被踢掉，ReceiverB接收到消息的時候將收到<code>RecvError::Lagged</code>錯誤並永遠地錯過第一個消息。</p>
+<h3 id="watch通道"><a class="header" href="#watch通道">watch通道</a></h3>
+<p>watch通道的特性是：只能有單個Sender，可以有多個Receiver，且通道永遠只保存一個數據。Sender每次向通道中發送數據時，都會修改通道中的那個數據。</p>
+<p>通道中的這個數據可以被Receiver進行引用讀取。</p>
+<p>一個簡單的官方示例：</p>
+<pre><pre class="playground"><code class="language-rust">use tokio::sync::watch;
+#[tokio::main]
+async fn main() {
+    // 創建watch通道時，需指定一個初始值存放在通道中
+    let (tx, mut rx) = watch::channel(&quot;hello&quot;);
+
+    // Recevier端，通過changed()來等待通道的數據發生變化
+    // 通過borrow()引用通道中的數據
+    tokio::spawn(async move {
+        while rx.changed().await.is_ok() {
+            println!(&quot;received = {:?}&quot;, *rx.borrow());
+        }
+    });
+
+    // 向通道中發送數據，實際上是修改通道中的那個數據
+    tx.send(&quot;world&quot;)?;
+}
+</code></pre></pre>
+<p>watch通道的用法很簡單，但是有些細節需要理解。</p>
+<p>Sender端可通過<code>subscribe()</code>創建新的Receiver端。</p>
+<p>當所有Receiver端均已關閉時，<code>send()</code>方法將返回錯誤。也就是說，<code>send()</code>必須要在有Receiver存活的情況下才能發送數據。</p>
+<p>但是Sender端還有一個<code>send_replace()</code>方法，它可以在沒有Receiver的情況下將數據寫入通道，並且該方法會返回通道中原來保存的值。</p>
+<p>無論是Sender端還是Receiver端，都可以通過<code>borrow()</code>方法取得通道中當前的值。由於可以有多個Receiver，為了避免讀寫時的數據不一致，watch內部使用了讀寫鎖：<strong>Sender端要發送數據修改通道中的數據時，需要申請寫鎖，論是Sender還是Receiver端，在調用<code>borrow()</code>或其它一些方式訪問通道數據時，都需要申請讀鎖</strong>。因此，訪問通道數據時要儘快釋放讀鎖，否則可能會長時間阻塞Sender端的發送操作。</p>
+<p>如果Sender端未發送數據，或者隔較長時間才發送一次數據，那麼通道中的數據在一段時間內將一直保持不變。如果Receiver在這段時間內去多次讀取通道，得到的結果將完全相同。但有時候，可能更需要的是等待通道中的數據已經發生變化，然後再根據新的數據做進一步操作，而不是循環不斷地去讀取並判斷當前讀取到的值是否和之前讀取的舊值相同。</p>
+<p>watch通道已經提供了這種功能：Receiver端可以標記通道中的數據，記錄該數據是否已經被讀取過。Receiver端的<code>changed()</code>方法用於等待通道中的數據發生變化，其內部判斷過程是：如果通道中的數據已經被標記為已讀取過，那麼<code>changed()</code>將等待數據更新，如果數據未標記過已讀取，那麼<code>changed()</code>認為當前數據就是新數據，<code>changed()</code>會立即返回。</p>
+<p>Receiver端的<code>borrow()</code>方法不會標記數據已經讀取，所以<code>borrow()</code>之後調用的<code>changed()</code>會立即返回。但是<code>changed()</code>等待到新值之後，會立即將該值標記為已讀取，使得下次調用<code>changed()</code>時會進行等待。</p>
+<p>此外，Receiver端還有一個<code>borrow_and_update()</code>方法，它會讀取數據並標記數據已經被讀取，因此隨後調用<code>chagned()</code>將進入等待。</p>
+<p>最後再強調一次，無論是Sender端還是Receiver端，訪問數據的時候都會申請讀鎖，要儘量快地釋放讀鎖，以免Sender長時間無法發送數據。</p>
+</main>
+<nav class="nav-wrapper" aria-label="Page navigation">
+
+<a rel="prev" href="04_task_communication_and_sync.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="06_task_state_sync.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+<div style="clear: both"></div>
+</nav>
+</div>
+</div>
+<nav class="nav-wide-wrapper" aria-label="Page navigation">
+<a rel="prev" href="04_task_communication_and_sync.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="06_task_state_sync.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+</nav>
+</div>
+
+<script type="text/javascript">
+            var socket = new WebSocket("ws://0.0.0.0:8880/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+<script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+<script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+<script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+<script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" src="../mytheme/sidebar.js"></script>
+</body>
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch100/05_task_communication.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:55 GMT -->
+</html>

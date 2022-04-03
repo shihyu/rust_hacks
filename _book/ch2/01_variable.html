@@ -1,0 +1,303 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch2/01_variable.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:37 GMT -->
+<head>
+
+<meta charset="UTF-8">
+<title>理解Rust中的變量賦值 - Rust入門祕籍</title>
+
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta name="description" content="Rust入門">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="../favicon.svg">
+<link rel="shortcut icon" href="../favicon.png">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/general.css">
+<link rel="stylesheet" href="../css/chrome.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+
+<link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+
+<link rel="stylesheet" href="../highlight.css">
+<link rel="stylesheet" href="../tomorrow-night.css">
+<link rel="stylesheet" href="../ayu-highlight.css">
+
+<link rel="stylesheet" href="../mytheme/fonts/cascadia-font.css">
+<link rel="stylesheet" href="../mytheme/style.css">
+</head>
+<body>
+
+<script type="text/javascript">
+            var path_to_root = "../index.html";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+<script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+<script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+<script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+<nav id="sidebar" class="sidebar" aria-label="Table of contents">
+<div class="sidebar-scrollbox">
+<ol class="chapter"><li class="chapter-item expanded affix "><a href="../about.html">說明</a></li><li class="chapter-item expanded "><a href="../ch1/00.html"><strong aria-hidden="true">1.</strong> Rust入門第一課</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch1/01_expression.html"><strong aria-hidden="true">1.1.</strong> Rust是基於表達式的語言</a></li></ol></li><li class="chapter-item expanded "><a href="00.html"><strong aria-hidden="true">2.</strong> 變量聲明和函數定義</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01_variable.html" class="active"><strong aria-hidden="true">2.1.</strong> 理解Rust中的變量賦值</a></li><li class="chapter-item expanded "><a href="02_function.html"><strong aria-hidden="true">2.2.</strong> 定義函數</a></li></ol></li><li class="chapter-item expanded "><a href="../ch3/00.html"><strong aria-hidden="true">3.</strong> Rust原始數據類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch3/01_number.html"><strong aria-hidden="true">3.1.</strong> 數值類型</a></li><li class="chapter-item expanded "><a href="../ch3/02_bool.html"><strong aria-hidden="true">3.2.</strong> 布爾類型</a></li><li class="chapter-item expanded "><a href="../ch3/03_char.html"><strong aria-hidden="true">3.3.</strong> char類型</a></li><li class="chapter-item expanded "><a href="../ch3/04_str_string.html"><strong aria-hidden="true">3.4.</strong> 字符串：str和String</a></li><li class="chapter-item expanded "><a href="../ch3/05_tuple_unit.html"><strong aria-hidden="true">3.5.</strong> tuple類型</a></li><li class="chapter-item expanded "><a href="../ch3/06_array.html"><strong aria-hidden="true">3.6.</strong> Array類型</a></li><li class="chapter-item expanded "><a href="../ch3/07_reference_type.html"><strong aria-hidden="true">3.7.</strong> Rust中的引用類型</a></li><li class="chapter-item expanded "><a href="../ch3/08_slice.html"><strong aria-hidden="true">3.8.</strong> Slice類型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch4/00.html"><strong aria-hidden="true">4.</strong> Rust操作符和流程控制語句</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch4/01_operators.html"><strong aria-hidden="true">4.1.</strong> Rust操作符</a></li><li class="chapter-item expanded "><a href="../ch4/02_range_expression.html"><strong aria-hidden="true">4.2.</strong> 範圍表達式</a></li><li class="chapter-item expanded "><a href="../ch4/03_flow_control.html"><strong aria-hidden="true">4.3.</strong> 流程控制結構</a></li></ol></li><li class="chapter-item expanded "><a href="../ch5/00.html"><strong aria-hidden="true">5.</strong> 理解Rust內存管理</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch5/01_heap_stack.html"><strong aria-hidden="true">5.1.</strong> 堆空間和棧空間</a></li><li class="chapter-item expanded "><a href="../ch5/02_rust_mem.html"><strong aria-hidden="true">5.2.</strong> Rust如何使用堆和棧</a></li><li class="chapter-item expanded "><a href="../ch5/03_rust_place_value.html"><strong aria-hidden="true">5.3.</strong> 通過位置和值理解內存模型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch6/00.html"><strong aria-hidden="true">6.</strong> 理解Rust的所有權和借用規則</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch6/01_scope.html"><strong aria-hidden="true">6.1.</strong> 理解Rust的變量作用域</a></li><li class="chapter-item expanded "><a href="../ch6/02_move_copy.html"><strong aria-hidden="true">6.2.</strong> Rust所有權規則概述</a></li><li class="chapter-item expanded "><a href="../ch6/03_ref_ownership_borrow.html"><strong aria-hidden="true">6.3.</strong> 引用和所有權借用</a></li><li class="chapter-item expanded "><a href="../ch6/04_understand_mutable_ref.html"><strong aria-hidden="true">6.4.</strong> 理解可變引用的排他性</a></li><li class="chapter-item expanded "><a href="../ch6/05_re_understand_move.html"><strong aria-hidden="true">6.5.</strong> 再次理解Move</a></li><li class="chapter-item expanded "><a href="../ch6/06_ref_copy_clone.html"><strong aria-hidden="true">6.6.</strong> 引用類型的Copy和Clone</a></li></ol></li><li class="chapter-item expanded "><a href="../ch7/00.html"><strong aria-hidden="true">7.</strong> Vec類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch7/01_vec_basic.html"><strong aria-hidden="true">7.1.</strong> Vec的基本使用</a></li><li class="chapter-item expanded "><a href="../ch7/02_vec_capacity_reallocation.html"><strong aria-hidden="true">7.2.</strong> Vec的內存佈局</a></li><li class="chapter-item expanded "><a href="../ch7/03_vec_method.html"><strong aria-hidden="true">7.3.</strong> vec的常用方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch8/00.html"><strong aria-hidden="true">8.</strong> Struct類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch8/01_struct_basic.html"><strong aria-hidden="true">8.1.</strong> Struct的基本使用</a></li><li class="chapter-item expanded "><a href="../ch8/02_output_struct.html"><strong aria-hidden="true">8.2.</strong> 調試輸出Struct</a></li><li class="chapter-item expanded "><a href="../ch8/03_struct_methods.html"><strong aria-hidden="true">8.3.</strong> 定義Struct的方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch9/00.html"><strong aria-hidden="true">9.</strong> Enum類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch9/01_enum_basis.html"><strong aria-hidden="true">9.1.</strong> Enum的基本使用</a></li><li class="chapter-item expanded "><a href="../ch9/02_more_about_enum.html"><strong aria-hidden="true">9.2.</strong> 定義Enum的完整語法</a></li><li class="chapter-item expanded "><a href="../ch9/03_enum_methods.html"><strong aria-hidden="true">9.3.</strong> 為枚舉類型定義方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch10/00.html"><strong aria-hidden="true">10.</strong> 模式匹配</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch10/01_pattern_match_basis.html"><strong aria-hidden="true">10.1.</strong> 模式匹配的基本使用</a></li><li class="chapter-item expanded "><a href="../ch10/02_pattern_details.html"><strong aria-hidden="true">10.2.</strong> 模式的完整語法</a></li><li class="chapter-item expanded "><a href="../ch10/03_deconstruction.html"><strong aria-hidden="true">10.3.</strong> 模式解構賦值</a></li></ol></li><li class="chapter-item expanded "><a href="../ch11/00.html"><strong aria-hidden="true">11.</strong> Trait和Trait Object</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch11/01_trait_basis.html"><strong aria-hidden="true">11.1.</strong> Trait的基本用法</a></li><li class="chapter-item expanded "><a href="../ch11/02_more_about_trait.html"><strong aria-hidden="true">11.2.</strong> 再多理解一點Trait</a></li><li class="chapter-item expanded "><a href="../ch11/03_trait_inherite.html"><strong aria-hidden="true">11.3.</strong> Trait繼承</a></li><li class="chapter-item expanded "><a href="../ch11/04_trait_object.html"><strong aria-hidden="true">11.4.</strong> Trait Object</a></li></ol></li><li class="chapter-item expanded "><a href="../ch12/00.html"><strong aria-hidden="true">12.</strong> 泛型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch12/01_generic_basis.html"><strong aria-hidden="true">12.1.</strong> 泛型的基本使用</a></li><li class="chapter-item expanded "><a href="../ch12/02_where_generic.html"><strong aria-hidden="true">12.2.</strong> 使用泛型的位置</a></li><li class="chapter-item expanded "><a href="../ch12/03_trait_obj_generic.html"><strong aria-hidden="true">12.3.</strong> Trait對象和泛型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch100/00.html"><strong aria-hidden="true">13.</strong> Rust異步編程和tokio框架</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch100/01_understand_tokio_runtime.html"><strong aria-hidden="true">13.1.</strong> 理解tokio的核心(1): runtime</a></li><li class="chapter-item expanded "><a href="../ch100/02_understand_tokio_task.html"><strong aria-hidden="true">13.2.</strong> 理解tokio的核心(2): task</a></li><li class="chapter-item expanded "><a href="../ch100/03_use_tokio_time.html"><strong aria-hidden="true">13.3.</strong> 使用tokio Timer</a></li><li class="chapter-item expanded "><a href="../ch100/04_task_communication_and_sync.html"><strong aria-hidden="true">13.4.</strong> tokio task的通信和同步(1): 簡介</a></li><li class="chapter-item expanded "><a href="../ch100/05_task_communication.html"><strong aria-hidden="true">13.5.</strong> tokio task的通信和同步(2): 通信</a></li><li class="chapter-item expanded "><a href="../ch100/06_task_state_sync.html"><strong aria-hidden="true">13.6.</strong> tokio task的通信和同步(3): 同步</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.7.</strong> 異步IO/fs/Stream/Frame沒寫完整，完整後再發</div></li></ol></li><li class="chapter-item expanded "><a href="../ch101/tracing.html"><strong aria-hidden="true">14.</strong> Rust日誌記錄</a></li></ol>
+</div>
+<div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+</nav>
+<div id="page-wrapper" class="page-wrapper">
+<div class="page">
+<div id="menu-bar-hover-placeholder"></div>
+<div id="menu-bar" class="menu-bar sticky bordered">
+<div class="left-buttons">
+<button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+<i class="fa fa-bars"></i>
+</button>
+<button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+<i class="fa fa-paint-brush"></i>
+</button>
+<ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+<li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+<li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+<li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+<li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+<li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+</ul>
+<button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+<i class="fa fa-search"></i>
+</button>
+</div>
+<h1 class="menu-title">Rust入門祕籍</h1>
+<h1 class="menu-title menu-blog">
+<a href="https://www.junmajinlong.com/">博客</a>
+</h1>
+<div class="right-buttons">
+<a href="../print.html" title="Print this book" aria-label="Print this book">
+<i id="print-button" class="fa fa-print"></i>
+</a>
+</div>
+</div>
+<div id="search-wrapper" class="hidden">
+<form id="searchbar-outer" class="searchbar-outer">
+<input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+</form>
+<div id="searchresults-outer" class="searchresults-outer hidden">
+<div id="searchresults-header" class="searchresults-header"></div>
+<ul id="searchresults">
+</ul>
+</div>
+</div>
+
+<script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+<div id="content" class="content">
+<main>
+<div class="sidetoc"><nav class="pagetoc"></nav></div>
+<h2 id="理解rust中的變量賦值"><a class="header" href="#理解rust中的變量賦值">理解Rust中的變量賦值</a></h2>
+<p><strong>Rust中使用<code>let</code>聲明變量</strong>：</p>
+<pre><pre class="playground"><code class="language-rust">fn main(){
+  // 聲明變量name並初始化賦值
+  let name = &quot;junmajinlong.com&quot;;
+  println!(&quot;{}&quot;, name);  // println!()格式化輸出數據
+}
+</code></pre></pre>
+<p><strong>Rust會對未使用的變量發出警告信息</strong>。如果確實想保留從未被使用過的變量，可在變量名前加上<code>_</code>前綴。</p>
+<pre><pre class="playground"><code class="language-rust">fn main(){
+  let name = &quot;junmajinlong.com&quot;;
+  println!(&quot;{}&quot;, name);
+
+  let gender = &quot;male&quot;;   // 警告，gender未使用
+  let _age = 18;     // 加_前綴的變量不被警告
+}
+</code></pre></pre>
+<p><strong>Rust允許聲明未被初始化(即未被賦值)的變量，但不允許使用未被賦值的變量</strong>。多數情況下，都是聲明的時候直接初始化的。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  let name;  // 只聲明，未初始化
+  // println!(&quot;{}&quot;, name);  // 取消該行註釋，將編譯錯誤
+  
+  name = &quot;junmajinlong.com&quot;;
+  println!(&quot;{}&quot;, name);
+}
+</code></pre></pre>
+<p>Rust允許<strong>重複聲明</strong>同名變量，後聲明的變量將<strong>遮蓋</strong>(shadow)前面已聲明的變量。需注意的是，遮蓋不是覆蓋，被遮蓋的變量仍然存在，而如果是被覆蓋則不再存在(也即，覆蓋時，原數據會被銷燬)。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  let name = &quot;junmajinlong.com&quot;;
+  // 註釋下行，將警告：name變量未被使用
+  // 因為name仍然存在，只是被遮蓋了
+  println!(&quot;{}&quot;, name);  
+  
+  let name = &quot;gaoxiaofang.com&quot;;  // 遮蓋已聲明的name變量
+  println!(&quot;{}&quot;, name);
+}
+</code></pre></pre>
+<p>變量遮蓋示意圖：</p>
+<pre><code>注：下圖內存佈局並不完全正確，此圖僅為說明變量遮蓋
+         +---------+       +--------------------+
+         |  Stack  |       |        Heap        |
+         +---------+       +--------------------+
+name --&gt; | 0x56789 |  ---&gt; | &quot;gaoxiaofang.com&quot;  |
+         |         |       +--------------------+
+name --&gt; | 0x01234 |  ---&gt; | &quot;junmajinlong.com&quot; |
+         +---------+       +--------------------+
+</code></pre>
+<p><strong>變量初始化後，默認不允許再修改該變量</strong>。注意，修改變量是直接給變量賦值，而不是再次let聲明該變量，再次聲明變量是允許的，它會遮蓋原變量。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  let name = &quot;junmajinlong.com&quot;;
+  // 取消下行註釋將編譯錯誤，默認不允許修改變量
+  // name = &quot;gaoxiaofang.com&quot;;
+  
+  let name = &quot;gaoxiaofang.com&quot;;  // 再次聲明變量，遮蓋變量
+  println!(&quot;{}&quot;, name);
+}
+</code></pre></pre>
+<p><strong>如果想要修改變量的值，需要在聲明變量時加上<code>mut</code>標記</strong>(mutable)表示該變量是可修改的。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  let mut name = &quot;junmajinlong.com&quot;;
+  println!(&quot;{}&quot;, name);
+  
+  name = &quot;gaoxiaofang.com&quot;;   // 修改變量
+  println!(&quot;{}&quot;, name);
+}
+</code></pre></pre>
+<p>Rust不僅對未被使用過的變量發出警告，<strong>還對賦值過但未被使用過的值發出警告</strong>。比如變量賦值後，尚未讀取該變量，就重新賦值了。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  let mut name = &quot;junmajinlong.com&quot;; // 警告值未被使用過
+  name = &quot;gaoxiaofang.com&quot;; 
+  println!(&quot;{}&quot;, name);
+}
+</code></pre></pre>
+<p>Rust是靜態語言，<strong>聲明變量時需指定該變量將要保存的值的數據類型，這樣編譯器編譯時才知道為該變量將要保存的數據分配多少內存、允許存放什麼類型的數據以及如何存放數據</strong>。但Rust編譯器會根據所保存的值來推導變量的數據類型，推導得到確定的數據類型之後(比如第一次為該變量賦值之後)，就不再允許存放其他類型的數據。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  // 根據保存的值推導數據類型
+  // 推導結果：變量name為 &amp;str 數據類型
+  let mut name = &quot;junmajinlong.com&quot;; 
+  //name = 32;  // 再讓name保存i32類型的數據，報錯
+}
+</code></pre></pre>
+<p><strong>當Rust無法推導類型時，或者聲明變量時就明確知道該變量要保存聲明類型的數據時，可明確指定該變量的數據類型</strong>。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  // 指定變量數據類型的語法：在變量名後加&quot;: TYPE&quot;
+  let age: i32 = 32;  // 明確指定age為i32類型
+  println!(&quot;{}&quot;, name);
+  
+  // i32類型的變量想存儲u8類型數據，不允許
+  // age = 23_u8;
+}
+</code></pre></pre>
+<p>雖然Rust是基於表達式的語言，但變量聲明的let代碼是語句而非表達式。這意味著<strong>let操作沒有返回值，因此無法使用let來連續賦值</strong>。</p>
+<pre><pre class="playground"><code class="language-rust">fn main(){
+  let a = (let b = 1);  // 錯誤
+}
+</code></pre></pre>
+<p><strong>可以使用tuple的方式同時為多個變量賦值，並且可以使用下劃線<code>_</code>佔位表示忽略某個變量的賦值過程</strong>。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// x = 11, y = 22, 忽略33
+let (x, y, _) = (11, 22, 33);
+<span class="boring">}
+</span></code></pre></pre>
+<p>事實上，<code>_</code>佔位符比想象中還更會【偷懶】，其他語言中<code>_</code>表達的含義可能是丟棄其賦值結果(甚至不丟棄)，<strong>但Rust中的<code>_</code>會直接忽略變量賦值的過程。這導致了這樣一種看似奇怪的現象：使用普通變量名會導致報錯的變量賦值行為，使用<code>_</code>卻不會報錯</strong>。</p>
+<p>例如，下面(1)不會報錯，而(2)會報錯。這裡涉及到了後面所有權轉移的內容，如果看不懂請先跳過，只需記住結論：<code>_</code>會直接忽略賦值的過程。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// (1)
+let s1 = &quot;junmajinlong.com&quot;.to_string();
+let _ = s1;
+println!(&quot;{}&quot;, s1); // 不會報錯
+
+// (2)
+let s2 = &quot;junmajinlong.com&quot;.to_string();
+let ss = s2;
+println!(&quot;{}&quot;, s2); // 報錯
+<span class="boring">}
+</span></code></pre></pre>
+<p>最後要說明的是，Rust中變量賦值操作實際上是Rust中的一種模式匹配，在後面的章節中將更系統、更詳細地介紹Rust模式匹配功能。</p>
+</main>
+<nav class="nav-wrapper" aria-label="Page navigation">
+
+<a rel="prev" href="00.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="02_function.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+<div style="clear: both"></div>
+</nav>
+</div>
+</div>
+<nav class="nav-wide-wrapper" aria-label="Page navigation">
+<a rel="prev" href="00.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="02_function.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+</nav>
+</div>
+
+<script type="text/javascript">
+            var socket = new WebSocket("ws://0.0.0.0:8880/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+<script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+<script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+<script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+<script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" src="../mytheme/sidebar.js"></script>
+</body>
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch2/01_variable.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:37 GMT -->
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js rust">
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch6/02_move_copy.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:46 GMT -->
+<head>
+
+<meta charset="UTF-8">
+<title>Rust所有權規則概述 - Rust入門祕籍</title>
+
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta name="description" content="Rust入門">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="../favicon.svg">
+<link rel="shortcut icon" href="../favicon.png">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/general.css">
+<link rel="stylesheet" href="../css/chrome.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+
+<link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+
+<link rel="stylesheet" href="../highlight.css">
+<link rel="stylesheet" href="../tomorrow-night.css">
+<link rel="stylesheet" href="../ayu-highlight.css">
+
+<link rel="stylesheet" href="../mytheme/fonts/cascadia-font.css">
+<link rel="stylesheet" href="../mytheme/style.css">
+</head>
+<body>
+
+<script type="text/javascript">
+            var path_to_root = "../index.html";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+<script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+<script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+<script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+<nav id="sidebar" class="sidebar" aria-label="Table of contents">
+<div class="sidebar-scrollbox">
+<ol class="chapter"><li class="chapter-item expanded affix "><a href="../about.html">說明</a></li><li class="chapter-item expanded "><a href="../ch1/00.html"><strong aria-hidden="true">1.</strong> Rust入門第一課</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch1/01_expression.html"><strong aria-hidden="true">1.1.</strong> Rust是基於表達式的語言</a></li></ol></li><li class="chapter-item expanded "><a href="../ch2/00.html"><strong aria-hidden="true">2.</strong> 變量聲明和函數定義</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch2/01_variable.html"><strong aria-hidden="true">2.1.</strong> 理解Rust中的變量賦值</a></li><li class="chapter-item expanded "><a href="../ch2/02_function.html"><strong aria-hidden="true">2.2.</strong> 定義函數</a></li></ol></li><li class="chapter-item expanded "><a href="../ch3/00.html"><strong aria-hidden="true">3.</strong> Rust原始數據類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch3/01_number.html"><strong aria-hidden="true">3.1.</strong> 數值類型</a></li><li class="chapter-item expanded "><a href="../ch3/02_bool.html"><strong aria-hidden="true">3.2.</strong> 布爾類型</a></li><li class="chapter-item expanded "><a href="../ch3/03_char.html"><strong aria-hidden="true">3.3.</strong> char類型</a></li><li class="chapter-item expanded "><a href="../ch3/04_str_string.html"><strong aria-hidden="true">3.4.</strong> 字符串：str和String</a></li><li class="chapter-item expanded "><a href="../ch3/05_tuple_unit.html"><strong aria-hidden="true">3.5.</strong> tuple類型</a></li><li class="chapter-item expanded "><a href="../ch3/06_array.html"><strong aria-hidden="true">3.6.</strong> Array類型</a></li><li class="chapter-item expanded "><a href="../ch3/07_reference_type.html"><strong aria-hidden="true">3.7.</strong> Rust中的引用類型</a></li><li class="chapter-item expanded "><a href="../ch3/08_slice.html"><strong aria-hidden="true">3.8.</strong> Slice類型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch4/00.html"><strong aria-hidden="true">4.</strong> Rust操作符和流程控制語句</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch4/01_operators.html"><strong aria-hidden="true">4.1.</strong> Rust操作符</a></li><li class="chapter-item expanded "><a href="../ch4/02_range_expression.html"><strong aria-hidden="true">4.2.</strong> 範圍表達式</a></li><li class="chapter-item expanded "><a href="../ch4/03_flow_control.html"><strong aria-hidden="true">4.3.</strong> 流程控制結構</a></li></ol></li><li class="chapter-item expanded "><a href="../ch5/00.html"><strong aria-hidden="true">5.</strong> 理解Rust內存管理</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch5/01_heap_stack.html"><strong aria-hidden="true">5.1.</strong> 堆空間和棧空間</a></li><li class="chapter-item expanded "><a href="../ch5/02_rust_mem.html"><strong aria-hidden="true">5.2.</strong> Rust如何使用堆和棧</a></li><li class="chapter-item expanded "><a href="../ch5/03_rust_place_value.html"><strong aria-hidden="true">5.3.</strong> 通過位置和值理解內存模型</a></li></ol></li><li class="chapter-item expanded "><a href="00.html"><strong aria-hidden="true">6.</strong> 理解Rust的所有權和借用規則</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01_scope.html"><strong aria-hidden="true">6.1.</strong> 理解Rust的變量作用域</a></li><li class="chapter-item expanded "><a href="02_move_copy.html" class="active"><strong aria-hidden="true">6.2.</strong> Rust所有權規則概述</a></li><li class="chapter-item expanded "><a href="03_ref_ownership_borrow.html"><strong aria-hidden="true">6.3.</strong> 引用和所有權借用</a></li><li class="chapter-item expanded "><a href="04_understand_mutable_ref.html"><strong aria-hidden="true">6.4.</strong> 理解可變引用的排他性</a></li><li class="chapter-item expanded "><a href="05_re_understand_move.html"><strong aria-hidden="true">6.5.</strong> 再次理解Move</a></li><li class="chapter-item expanded "><a href="06_ref_copy_clone.html"><strong aria-hidden="true">6.6.</strong> 引用類型的Copy和Clone</a></li></ol></li><li class="chapter-item expanded "><a href="../ch7/00.html"><strong aria-hidden="true">7.</strong> Vec類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch7/01_vec_basic.html"><strong aria-hidden="true">7.1.</strong> Vec的基本使用</a></li><li class="chapter-item expanded "><a href="../ch7/02_vec_capacity_reallocation.html"><strong aria-hidden="true">7.2.</strong> Vec的內存佈局</a></li><li class="chapter-item expanded "><a href="../ch7/03_vec_method.html"><strong aria-hidden="true">7.3.</strong> vec的常用方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch8/00.html"><strong aria-hidden="true">8.</strong> Struct類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch8/01_struct_basic.html"><strong aria-hidden="true">8.1.</strong> Struct的基本使用</a></li><li class="chapter-item expanded "><a href="../ch8/02_output_struct.html"><strong aria-hidden="true">8.2.</strong> 調試輸出Struct</a></li><li class="chapter-item expanded "><a href="../ch8/03_struct_methods.html"><strong aria-hidden="true">8.3.</strong> 定義Struct的方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch9/00.html"><strong aria-hidden="true">9.</strong> Enum類型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch9/01_enum_basis.html"><strong aria-hidden="true">9.1.</strong> Enum的基本使用</a></li><li class="chapter-item expanded "><a href="../ch9/02_more_about_enum.html"><strong aria-hidden="true">9.2.</strong> 定義Enum的完整語法</a></li><li class="chapter-item expanded "><a href="../ch9/03_enum_methods.html"><strong aria-hidden="true">9.3.</strong> 為枚舉類型定義方法</a></li></ol></li><li class="chapter-item expanded "><a href="../ch10/00.html"><strong aria-hidden="true">10.</strong> 模式匹配</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch10/01_pattern_match_basis.html"><strong aria-hidden="true">10.1.</strong> 模式匹配的基本使用</a></li><li class="chapter-item expanded "><a href="../ch10/02_pattern_details.html"><strong aria-hidden="true">10.2.</strong> 模式的完整語法</a></li><li class="chapter-item expanded "><a href="../ch10/03_deconstruction.html"><strong aria-hidden="true">10.3.</strong> 模式解構賦值</a></li></ol></li><li class="chapter-item expanded "><a href="../ch11/00.html"><strong aria-hidden="true">11.</strong> Trait和Trait Object</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch11/01_trait_basis.html"><strong aria-hidden="true">11.1.</strong> Trait的基本用法</a></li><li class="chapter-item expanded "><a href="../ch11/02_more_about_trait.html"><strong aria-hidden="true">11.2.</strong> 再多理解一點Trait</a></li><li class="chapter-item expanded "><a href="../ch11/03_trait_inherite.html"><strong aria-hidden="true">11.3.</strong> Trait繼承</a></li><li class="chapter-item expanded "><a href="../ch11/04_trait_object.html"><strong aria-hidden="true">11.4.</strong> Trait Object</a></li></ol></li><li class="chapter-item expanded "><a href="../ch12/00.html"><strong aria-hidden="true">12.</strong> 泛型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch12/01_generic_basis.html"><strong aria-hidden="true">12.1.</strong> 泛型的基本使用</a></li><li class="chapter-item expanded "><a href="../ch12/02_where_generic.html"><strong aria-hidden="true">12.2.</strong> 使用泛型的位置</a></li><li class="chapter-item expanded "><a href="../ch12/03_trait_obj_generic.html"><strong aria-hidden="true">12.3.</strong> Trait對象和泛型</a></li></ol></li><li class="chapter-item expanded "><a href="../ch100/00.html"><strong aria-hidden="true">13.</strong> Rust異步編程和tokio框架</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ch100/01_understand_tokio_runtime.html"><strong aria-hidden="true">13.1.</strong> 理解tokio的核心(1): runtime</a></li><li class="chapter-item expanded "><a href="../ch100/02_understand_tokio_task.html"><strong aria-hidden="true">13.2.</strong> 理解tokio的核心(2): task</a></li><li class="chapter-item expanded "><a href="../ch100/03_use_tokio_time.html"><strong aria-hidden="true">13.3.</strong> 使用tokio Timer</a></li><li class="chapter-item expanded "><a href="../ch100/04_task_communication_and_sync.html"><strong aria-hidden="true">13.4.</strong> tokio task的通信和同步(1): 簡介</a></li><li class="chapter-item expanded "><a href="../ch100/05_task_communication.html"><strong aria-hidden="true">13.5.</strong> tokio task的通信和同步(2): 通信</a></li><li class="chapter-item expanded "><a href="../ch100/06_task_state_sync.html"><strong aria-hidden="true">13.6.</strong> tokio task的通信和同步(3): 同步</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.7.</strong> 異步IO/fs/Stream/Frame沒寫完整，完整後再發</div></li></ol></li><li class="chapter-item expanded "><a href="../ch101/tracing.html"><strong aria-hidden="true">14.</strong> Rust日誌記錄</a></li></ol>
+</div>
+<div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+</nav>
+<div id="page-wrapper" class="page-wrapper">
+<div class="page">
+<div id="menu-bar-hover-placeholder"></div>
+<div id="menu-bar" class="menu-bar sticky bordered">
+<div class="left-buttons">
+<button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+<i class="fa fa-bars"></i>
+</button>
+<button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+<i class="fa fa-paint-brush"></i>
+</button>
+<ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+<li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+<li role="none"><button role="menuitem" class="theme" id="rust">Rust (default)</button></li>
+<li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+<li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+<li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+</ul>
+<button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+<i class="fa fa-search"></i>
+</button>
+</div>
+<h1 class="menu-title">Rust入門祕籍</h1>
+<h1 class="menu-title menu-blog">
+<a href="https://www.junmajinlong.com/">博客</a>
+</h1>
+<div class="right-buttons">
+<a href="../print.html" title="Print this book" aria-label="Print this book">
+<i id="print-button" class="fa fa-print"></i>
+</a>
+</div>
+</div>
+<div id="search-wrapper" class="hidden">
+<form id="searchbar-outer" class="searchbar-outer">
+<input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+</form>
+<div id="searchresults-outer" class="searchresults-outer hidden">
+<div id="searchresults-header" class="searchresults-header"></div>
+<ul id="searchresults">
+</ul>
+</div>
+</div>
+
+<script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+<div id="content" class="content">
+<main>
+<div class="sidetoc"><nav class="pagetoc"></nav></div>
+<h2 id="rust所有權規則概述"><a class="header" href="#rust所有權規則概述">Rust所有權規則概述</a></h2>
+<p>Rust的所有權(ownership)規則貫穿整個語言，幾乎每行代碼都涉及到所有權規則，因此需要對所有權規則非常熟悉才能更好地使用Rust。</p>
+<p>Rust所有權規則可以總結為如下幾句話：</p>
+<ul>
+<li><strong>Rust中的每個值都有一個被稱為其所有者的變量</strong>(即：值的所有者是某個變量)</li>
+<li><strong>值在任一時刻有且只有一個所有者</strong></li>
+<li><strong>當所有者(變量)離開作用域，這個值將被銷燬</strong></li>
+</ul>
+<p>這裡對第三點做一些補充性的解釋，所有者離開作用域會導致值被銷燬，這個過程實際上是調用一個名為drop的函數來銷燬數據釋放內存。在前文解釋作用域規則時曾提到過，銷燬的數據特指堆棧中的數據，如果變量綁定的值是全局內存區內的數據，則數據不會被銷燬。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">fn main(){
+  {
+    let mut s = String::from(&quot;hello&quot;);
+  } // 跳出作用域，棧中的變量s將被銷燬，其指向的堆
+    // 中數據也被銷燬，但全局內存區的字符串字面量仍被保留
+}
+</code></pre></pre>
+<h2 id="誰是誰的所有者"><a class="header" href="#誰是誰的所有者">誰是誰的所有者</a></h2>
+<p>Rust中每個值都有一個所有者，但這個說法比較容易產生誤會。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let s = String::from(&quot;hello&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>多數人可能會誤以為變量s是堆中字符串數據<code>hello</code>的所有者，但實際上不是。</p>
+<p>前面介紹內存的文章中解釋過，String字符串的實際數據在堆中，但是String大小不確定，所以在棧中使用一個胖指針結構來表示這個String類型的數據，這個胖指針中的指針指向堆中的String實際數據。也就是說，變量s的值是那個胖指針，而不是堆中的實際數據。</p>
+<p>因此，變量s是那個胖指針的所有者，而不是堆中實際數據的所有者。</p>
+<p>但是，由於胖指針是指向堆中數據的，多數時候為了簡化理解簡化描述方式，也經常會說s是那個堆中實際數據的所有者。但無論如何描述，需要理解所有者和值之間的真相。</p>
+<h2 id="rust中數據的移動"><a class="header" href="#rust中數據的移動">Rust中數據的移動</a></h2>
+<p>在其他語言中，有深拷貝和淺拷貝的概念，淺拷貝描述的是隻拷貝數據對象的引用，深拷貝描述的是根據引用遞歸到最終的數據並拷貝數據。</p>
+<p>在Rust中沒有深淺拷貝的概念，但有移動(move)、拷貝(copy)和克隆(clone)的概念。</p>
+<p>看下面的賦值操作，在其他語言中這樣賦值是正確的，但在Rust中這樣的賦值會報錯。</p>
+<pre><pre class="playground"><code class="language-rust">fn main(){
+  let s1 = String::from(&quot;hello&quot;);
+  let s2 = s1;
+
+  // 將報錯error: borrow of moved value: `s1`
+  println!(&quot;{},{}&quot;, s1, s2); 
+}
+</code></pre></pre>
+<p>上面的示例中，變量s1綁定了String字符串數據(再次提醒，String數據是胖指針結構而不是指堆中的那些實際數據)，此時該數據的所有者是s1。</p>
+<p>當執行<code>let s2 = s1;</code>時，將不會拷貝堆中數據賦值給s2，也不會像其他語言一樣讓變量s2也綁定堆中數據(即，不會拷貝堆數據的引用賦值給s2)。</p>
+<p>因此，下圖的內存引用方式不適用於Rust。</p>
+<p><img src="2020_11_19_1605794484331.png" alt="" /></p>
+<p>如果Rust採用這種內存引用方式，按照Rust的所有權規則，變量在跳出作用域後就銷燬堆中對應數據，那麼在s1和s2離開作用域時會導致<strong>二次釋放</strong>同一段堆內存，這會導致內存汙染。</p>
+<p>Rust採用非常直接的方式，當執行<code>let s2 = s1;</code>時，直接讓s1無效(s1仍然存在，只是變成未初始化變量，Rust不允許使用未初始化變量，可重新為其賦值)，而是隻讓s2綁定堆內存的數據。也就是<strong>將s1移動到s2</strong>，也稱為<strong>值的所有權從s1移給s2</strong>。</p>
+<p>如圖：</p>
+<p><img src="2020_11_19_1605795164148.png" alt="" /></p>
+<h3 id="所有權移動後修改數據"><a class="header" href="#所有權移動後修改數據">所有權移動後修改數據</a></h3>
+<p>定義變量的時候，加上<code>mut</code>表示變量可修改。當發生所有權轉移時，後擁有所有權的變量也可以加上<code>mut</code>。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut x = String::from(&quot;hello&quot;);
+
+// x將所有權轉移給y，但y無法修改字符串
+let y = x;   
+// y.push('C');  // 本行報錯
+
+let a = String::from(&quot;hello&quot;);
+// 雖然a無法修改字符串，但轉移所有權後，b可修改字符串
+let mut b = a; 
+b.push('C');   // 本行不報錯
+<span class="boring">}
+</span></code></pre></pre>
+<h3 id="移動真的只是移動嗎"><a class="header" href="#移動真的只是移動嗎">移動真的只是移動嗎？</a></h3>
+<p>比如下面的示例：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let s1 = String::from(&quot;hello&quot;);
+let s2 = s1;
+<span class="boring">}
+</span></code></pre></pre>
+<p>上面已經分析過，值的所有權會從變量s1轉移到變量s2，所有權的轉移，涉及到的過程是拷貝到目標變量，同時重置原變量到未初始狀態，整個過程就像是進行了一次數據的移動。但注意，上面示例中拷貝的是棧中的胖指針，而不是拷貝堆中的實際數據，因此這樣的拷貝效率是相對較高的。</p>
+<p>所有權轉移之後，將只有新的所有者才會指向堆中的實際數據，而原變量將不再指向堆中實際數據，因此所有權轉移之後仍然只有一個指針指向堆中數據。</p>
+<p>Move不僅發生在變量賦值過程中，在函數傳參、函數返回數據時也會Move，因此，如果將一個大對象(例如包含很多數據的數組，包含很多字段的struct)作為參數傳遞給函數，是否會讓效率很低下？</p>
+<p>按照上面的結論來說，確實如此。但Rust編譯器會對Move語義的行為做出一些優化，簡單來說，當數據量較大且不會引起程序正確性問題時，它會傳遞大對象的指針而非內存拷貝。</p>
+<p>此外，對於胖指針類型的變量(如Vec、String)，即使發生了拷貝，其性能也不差，因為拷貝的只是它的胖指針部分。</p>
+<p>總之，Move雖然發生了內存拷貝，但它的性能並不會太受影響。</p>
+<p>此處部分結論參考：<a href="https://stackoverflow.com/questions/30288782/what-are-move-semantics-in-rust">https://stackoverflow.com/questions/30288782/what-are-move-semantics-in-rust</a>。</p>
+<h2 id="copy語義"><a class="header" href="#copy語義">Copy語義</a></h2>
+<p>默認情況下，在將一個值保存到某個位置時總是進行值的移動(實際上是拷貝)，使得只有目標位置才擁有這個值，而原始變量將變回未初始化狀態，也就是暫時不可用的狀態。這是Rust的移動語義。</p>
+<p>Rust還有Copy語義，和Move語義幾乎相同，唯一的區別是Copy後，原始變量仍然可用。</p>
+<p>前面說過，Move實際上是進行了拷貝，只不過拷貝後讓原始變量變回未初始化狀態了，而Copy的行為，就是保留原始變量。</p>
+<p>但Rust默認是使用Move語義，如果想要使用Copy語義，要求要拷貝的數據類型實現了Copy Trait。</p>
+<p>例如，i32默認就已經實現了Copy Trait，因此它在進行所有權轉移的時候，會自動使用Copy語義，而不是Move語義。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let x = 3;   // 3是原始數據類型，它直接存儲在棧中，所以x變量的值是3，x擁有3
+let n = x;   // Copy x的值(即3)到變量n，n現在擁有一個3，但x仍然擁有自己的3
+<span class="boring">}
+</span></code></pre></pre>
+<p>Rust中默認實現了Copy Trait的類型，包括但不限於：</p>
+<ul>
+<li>所有整數類型，比如u32</li>
+<li>所有浮點數類型，比如f64</li>
+<li>布爾類型，bool，它的值是true和false</li>
+<li>字符類型，char</li>
+<li>元組，當且僅當其包含的類型也都是Copy的時候。比如<code>(i32, i32)</code>是Copy的，但<code>(i32, String)</code>不是</li>
+<li>共享指針類型或共享引用類型</li>
+</ul>
+<p>對於那些沒有實現Copy的自定義類型，可以手動去實現Copy(要求同時實現Clone)，方式很簡單：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Copy, Clone)]
+struct Abc(i32, i32);
+<span class="boring">}
+</span></code></pre></pre>
+<p>下面是實現了Copy和未實現Copy時的一個對比示例：</p>
+<pre><pre class="playground"><code class="language-rust">#[derive(Debug)]
+struct Xyz(i32, i32);
+
+#[derive(Copy, Clone, Debug)]
+struct Def(i32, i32);
+
+fn main() {
+  let x = Xyz(11, 22);
+  let y = x;
+  // println!(&quot;x: {}&quot;, x); // 報錯
+  println!(&quot;y: {:?}&quot;, y);
+
+  let d = Def(33, 44);
+  let e = d;
+  println!(&quot;d: {:?}&quot;, d);
+  println!(&quot;e: {:?}&quot;, e);
+}
+</code></pre></pre>
+<p><img src="1633397514675.png" alt="" /></p>
+<h2 id="克隆數據"><a class="header" href="#克隆數據">克隆數據</a></h2>
+<p>雖然實現Copy Trait可以讓原變量繼續擁有自己的值，但在某些需求下，不便甚至不能去實現Copy。這時如果想要繼續使用原變量，可以使用<code>clone()</code>方法手動拷貝變量的數據，同時不會讓原始變量變回未初始化狀態。</p>
+<pre><pre class="playground"><code class="language-rust">fn main(){
+  let s1 = String::from(&quot;hello&quot;);
+  // 克隆s1，克隆之後，變量s1仍然綁定原始數據
+  let s2 = s1.clone();
+  println!(&quot;{},{}&quot;, s1, s2);
+}
+</code></pre></pre>
+<p>但不是所有數據類型都可以進行克隆，只有那些實現了Clone Trait的類型才可以進行克隆(Trait類似於面嚮對象語言中的接口，如果不瞭解可先不管Trait是什麼)，常見的數據類型都已經實現了Clone，因此它們可以直接使用clone()來克隆。</p>
+<p>對於那些沒有實現Clone Trait的自定義類型，需要手動實現Clone Trait。在自定義類型之前加上<code>#[derive(Copy, Clone)]</code>即可。例如：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Copy, Clone)]
+struct Abc(i32, i32);
+<span class="boring">}
+</span></code></pre></pre>
+<p>這樣Abc類型的值就可以使用clone()方法進行克隆。</p>
+<p>要注意Copy和Clone時的區別，如果不考慮自己實現Copy trait和Clone trait，而是使用它們的默認實現，那麼：</p>
+<ul>
+<li>Copy時，只拷貝變量本身的值，如果這個變量指向了其它數據，則不會拷貝其指向的數據</li>
+<li>Clone時，拷貝變量本身的值，如果這個變量指向了其它數據，則也會拷貝其指向的數據</li>
+</ul>
+<p>也就是說，Copy是淺拷貝，Clone是深拷貝，Rust會對每個字段每個元素遞歸調用clone()，直到最底部。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+  let vb0 = vec![&quot;s1&quot;.to_string()];
+  let v = vec![vb0];
+  println!(&quot;{:p}&quot;, &amp;v[0][0]);     // 0x21c43a20c50
+
+  let vc = v.clone();
+  println!(&quot;{:p}&quot;, &amp;vc[0][0]);  // 0x21c43a20b70
+}
+</code></pre></pre>
+<p>所以，使用Clone的默認實現時，clone()操作的性能是較低的。但可以自己實現自己的克隆邏輯，也不一定總是會效率低。比如Rc，它的clone用於增加引用計數，同時只拷貝少量數據，它的clone效率並不低。</p>
+<h2 id="函數參數和返回值的所有權移動"><a class="header" href="#函數參數和返回值的所有權移動">函數參數和返回值的所有權移動</a></h2>
+<p><strong>函數參數類似於變量賦值，在調用函數時，會將所有權移動給函數參數</strong>。</p>
+<p><strong>函數返回時，返回值的所有權從函數內移動到函數外變量</strong>。</p>
+<p>例如：</p>
+<pre><pre class="playground"><code class="language-rust">fn main(){
+  let s1 = String::from(&quot;hello&quot;);
+  
+  // 所有權從s1移動到f1的參數
+  // 然後f1返回值的所有權移動給s2
+  let s2 = f1(s1); 
+  // 注意，println!()不會轉移參數s2的所有權
+  println!(&quot;{}&quot;, s2);
+
+  let x = 4;
+  f2(x);     // 沒有移動所有權，而是拷貝一份給f2參數
+}  // 首先x跳出作用域，
+   // 然後s2跳出作用域，並釋放對應堆內存數據，
+   // 最後s1跳出作用域，s1沒有所有權，所以沒有任何其他影響
+
+fn f1(s: String) -&gt; String {
+  let ss = String::from(&quot;world&quot;); 
+  println!(&quot;{},{}&quot;, s,ss);
+  s  // 返回值s的所有權移動到函數外
+}    // ss跳出作用域
+
+fn f2(i: i32){
+  println!(&quot;{}&quot;,i);
+}   // i跳出作用域
+</code></pre></pre>
+<p>很多時候，變量傳參之後丟失所有權是非常不方便的，這意味著函數調用之後，原變量就不可用了。為了解決這個問題，可以將變量的<strong>引用</strong>傳遞給參數。引用是保存在棧中的，它實現了Copy Trait，因此在傳遞引用時，所有權轉移的過程實際上是拷貝了引用，這樣不會丟失原變量的所有權，效率也更高。</p>
+</main>
+<nav class="nav-wrapper" aria-label="Page navigation">
+
+<a rel="prev" href="01_scope.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="03_ref_ownership_borrow.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+<div style="clear: both"></div>
+</nav>
+</div>
+</div>
+<nav class="nav-wide-wrapper" aria-label="Page navigation">
+<a rel="prev" href="01_scope.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+<i class="fa fa-angle-left"></i>
+</a>
+<a rel="next" href="03_ref_ownership_borrow.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+<i class="fa fa-angle-right"></i>
+</a>
+</nav>
+</div>
+
+<script type="text/javascript">
+            var socket = new WebSocket("ws://0.0.0.0:8880/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+<script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+<script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+<script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+<script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" src="../mytheme/sidebar.js"></script>
+</body>
+
+<!-- Mirrored from rust-book.junmajinlong.com/ch6/02_move_copy.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Apr 2022 03:25:48 GMT -->
+</html>
